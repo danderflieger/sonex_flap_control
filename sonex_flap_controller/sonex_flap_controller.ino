@@ -31,7 +31,8 @@
 
 int ANGLE1 = 0;
 int ANGLE2 = 10;
-int ANGLE3 = 20;
+int ANGLE3 = 25;
+int TITLE_MARGIN = 8;
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 // The pins for I2C are defined by the Wire-library. 
@@ -91,7 +92,7 @@ void loop() {
 
 void drawReferenceLine(int angle) {
   
-  display.fillRect(23, getYPosition(angle)+5, 13, 5, SSD1306_WHITE);
+  display.fillRect(23, getYPosition(angle)+TITLE_MARGIN, 13, 5, SSD1306_WHITE);
   display.display();
 
 }
@@ -117,7 +118,7 @@ void drawReferenceValue(int angle) {
 
   display.setTextSize(2);
   display.setTextColor(SSD1306_WHITE);
-  display.setCursor(40, getYPosition(angle));
+  display.setCursor(40, getYPosition(angle)+ 3);
   display.cp437(true);
   display.write(textValues);
   display.display();
@@ -131,7 +132,7 @@ void drawReferenceValue(int angle) {
 void drawNewAngle(int angle) {
 
   display.fillRect(0, getYPosition(ANGLE1), 22, SCREEN_WIDTH, SSD1306_BLACK);
-  display.fillRect(2, getYPosition(angle) + 5, 18, 5, SSD1306_WHITE);
+  display.fillRect(2, getYPosition(angle) + TITLE_MARGIN, 18, 5, SSD1306_WHITE);
   display.display();
   delay(10);
 
