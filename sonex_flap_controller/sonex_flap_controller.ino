@@ -29,10 +29,12 @@
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 
-int ANGLE1 = 0;
-int ANGLE2 = 10;
-int ANGLE3 = 25;
+int ANGLE0 = 0;
+int ANGLE1 = 10;
+int ANGLE2 = 20;
+int ANGLE3 = 30;
 int TITLE_MARGIN = 8;
+int ACTUATOR_SPEED = 255;
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 // The pins for I2C are defined by the Wire-library. 
@@ -43,12 +45,23 @@ int TITLE_MARGIN = 8;
 #define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
+#define EXTEND_BUTTON 2
+#define RETRACT_BUTTON 3
+
+#define EXTEND_PWM 10
+#define RETRACT_PWM 11
 
 
 void setup() {
+  // set up serial output
   Serial.begin(9600);
-
   Serial.println("Serial started ...");
+
+  // set up the button pins
+  pinMode(EXTEND_BUTTON, INPUT_PULLUP);
+  pinMode(RETRACT_BUTTON, INPUT_PULLUP);
+
+
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
@@ -68,6 +81,10 @@ void setup() {
 
   drawTitle();
 
+  drawReferenceLine(ANGLE0);
+  drawReferenceValue(ANGLE0);
+
+
   drawReferenceLine(ANGLE1);
   drawReferenceValue(ANGLE1);
 
@@ -83,10 +100,23 @@ void setup() {
 }
 
 void loop() {
+
+  if (digitalRead(RETRACT_BUTTON) == LOW) {
+    Serial.println("Retract Button Pressed");
+    analogWrite(RETRACT_PWM, ACTUATOR_SPEED);
+  } else if (digitalRead(EXTEND_BUTTON) == LOW) {
+    Serial.println("Extend Button Pressed");   
+    analogWrite(EXTEND_PWM, ACTUATOR_SPEED);
+  } else {
+    analogWrite(RETRACT_PWM, 0);
+    analogWrite(EXTEND_PWM, 0);
+  }
   
-  int SensorReading = getTestAngleData();
+  // int SensorReading = getTestAngleData();
+  int SensorReading = map( analogRead(A2), 10, 870, ANGLE0, ANGLE3 );
   drawNewAngle(SensorReading);
   Serial.println(SensorReading, DEC);
+  delay(300);
   
 }
 
@@ -131,7 +161,7 @@ void drawReferenceValue(int angle) {
 
 void drawNewAngle(int angle) {
 
-  display.fillRect(0, getYPosition(ANGLE1), 22, SCREEN_WIDTH, SSD1306_BLACK);
+  display.fillRect(0, getYPosition(ANGLE0), 22, SCREEN_WIDTH, SSD1306_BLACK);
   display.fillRect(2, getYPosition(angle) + TITLE_MARGIN, 18, 5, SSD1306_WHITE);
   display.display();
   delay(10);
