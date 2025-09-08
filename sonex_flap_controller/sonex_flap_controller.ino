@@ -23,24 +23,20 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
-// #define SCREEN_WIDTH 128 // OLED display width, in pixels
-// #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 
-// int ANGLE0 = 0;
-// int ANGLE1 = 10;
-// int ANGLE2 = 20;
-// int ANGLE3 = 30;
 
 // List of flap notches
 int ANGLES[] = { 0, 10, 20, 30, 40, 50 };
 int NOTCH_COUNT = sizeof(ANGLES) / sizeof(ANGLES[0]);
+int CURRENT_NOTCH = 0;
 
 int TITLE_MARGIN = 8;
 int TITLE_HEIGHT = 20;
 int ACTUATOR_SPEED = 255;
+
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 // The pins for I2C are defined by the Wire-library. 
@@ -73,11 +69,6 @@ void setup() {
     for(;;); // Don't proceed, loop forever
   }
 
-  
-  // Show initial display buffer contents on the screen --
-  // the library initializes this with an Adafruit splash screen.
-  // display.display();
-  // delay(2000); // Pause for 2 seconds
 
   // Clear the buffer
   display.clearDisplay();
@@ -85,34 +76,28 @@ void setup() {
 
   drawTitle();
 
-  // drawReferenceLine(ANGLE0);
-  // drawReferenceValue(ANGLE0);
-
-
-  // drawReferenceLine(ANGLE1);
-  // drawReferenceValue(ANGLE1);
-
-  // drawReferenceLine(ANGLE2);
-  // drawReferenceValue(ANGLE2);
-
-  // drawReferenceLine(ANGLE3);
-  // drawReferenceValue(ANGLE3);
-
   drawReferenceLines();
   drawReferenceValues();
 
-  // display.display();
+  int SensorReading = map( analogRead(A2), 10, 870, ANGLES[0], ANGLES[NOTCH_COUNT - 1] );
+  while (SensorReading < ANGLES[CURRENT_NOTCH] || CURRENT_NOTCH >= NOTCH_COUNT) {
+    CURRENT_NOTCH++;
+  }
+
+
 
 }
 
 void loop() {
 
   if (digitalRead(RETRACT_BUTTON) == LOW) {
-    Serial.println("Retract Button Pressed");
-    analogWrite(RETRACT_PWM, ACTUATOR_SPEED);
+    // Serial.println("Retract Button Pressed");
+    // analogWrite(RETRACT_PWM, ACTUATOR_SPEED);
+    retractFlapsOneNotch();
   } else if (digitalRead(EXTEND_BUTTON) == LOW) {
-    Serial.println("Extend Button Pressed");   
-    analogWrite(EXTEND_PWM, ACTUATOR_SPEED);
+    // Serial.println("Extend Button Pressed");   
+    // analogWrite(EXTEND_PWM, ACTUATOR_SPEED);
+    extendFlapsOneNotch();
   } else {
     analogWrite(RETRACT_PWM, 0);
     analogWrite(EXTEND_PWM, 0);
@@ -215,6 +200,63 @@ int getYPosition(int angle) {
   Serial.print("angle:");Serial.print(angle); Serial.print(" yPosition: "); Serial.println(newValue);
   return newValue;
   
+}
+
+int getCurrentSensorReading() {
+  return map( analogRead(A2), 10, 870, ANGLES[0], ANGLES[NOTCH_COUNT - 1] );
+}
+
+void retractFlapsOneNotch() {
+
+  int SensorReading = getCurrentSensorReading();
+  if (CURRENT_NOTCH > 0) {
+    while (ANGLES[CURRENT_NOTCH - 1] <= SensorReading) {
+      if (digitalRead(EXTEND_BUTTON) == LOW) {
+        analogWrite(RETRACT_PWM, 0);
+        analogWrite(EXTEND_PWM, 0);
+        delay(500);
+        break;
+      } else {
+        analogWrite(RETRACT_PWM, ACTUATOR_SPEED);
+      }
+    }
+    CURRENT_NOTCH = CURRENT_NOTCH -1;
+  } else {
+    // need to retract to 0 in case partial travel has been done without increasing the current notch
+    if (getCurrentSensorReading() >= ANGLES[0]){
+      while (getCurrentSensorReading() >= ANGLES[0] ){
+        analogWrite(RETRACT_PWM, 0);
+        delay(100);
+      }
+    }
+  }
+  
+}
+
+void extendFlapsOneNotch() {
+  
+  int SensorReading = getCurrentSensorReading();
+  if (CURRENT_NOTCH < NOTCH_COUNT - 1) {
+    while (ANGLES[CURRENT_NOTCH + 1] >= SensorReading) {
+      if (digitalRead(RETRACT_BUTTON) == LOW) {
+        analogWrite(RETRACT_PWM, 0);
+        analogWrite(EXTEND_PWM, 0);
+        delay(500);
+        break;
+      } else {
+        analogWrite(EXTEND_PWM, ACTUATOR_SPEED);
+      }
+      
+    }
+    CURRENT_NOTCH = CURRENT_NOTCH + 1;
+  } else {
+    if (getCurrentSensorReading() <= ANGLES[NOTCH_COUNT - 1]){
+      while (getCurrentSensorReading() <= ANGLES[NOTCH_COUNT - 1] ){
+        analogWrite(EXTEND_PWM, 0);
+        delay(100);
+      }
+    }
+  }
 }
 
 // int testAngle = 0;
