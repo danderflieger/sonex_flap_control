@@ -11,6 +11,8 @@ My Sonex kit came with a Flap Actuator with a feedback circuit (e.g. it has 5 wi
 
   You can simply wire it with a switch and be done (which allows you to just hold the extend or retract switch position until it's where you want it) or you can choose to use the Arduino in conjunction with a motor driver to move the actuator to various "notches" of flaps.
 
+  The Motor Driver will flip the polarity of the actuator wires to move the flaps in the correct direction.
+
 ### Position sensor  
 
 The real benefit to this project is the flap position indicator. You can use the built-in position sensor to display the position of the flaps on your panel.
