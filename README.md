@@ -6,12 +6,15 @@ My Sonex kit came with a Flap Actuator with a feedback circuit (e.g. it has 5 wi
 ## Wires:
 
 ### Power for actuator: You can wire the actuator to directly use 12/24V. To extend the flaps, you give Positive power to the red wire and Negative power to black. To retract, flip the Positive/Negative connections
-  RED:   Power (+ to extend, - to retract)
-  BLACK: Power (- to extend, + to retract)
+  - RED:   Power (+ to extend, - to retract)
+  - BLACK: Power (- to extend, + to retract)
 
   You can simply wire it with a switch and be done (which allows you to just hold the extend or retract switch position until it's where you want it) or you can choose to use the Arduino in conjunction with a motor driver to move the actuator to various "notches" of flaps.
 
 ### Position sensor  
-  BLUE: 5V positive
-  WHITE: 5V negative/ground
-  YELLOW: 0-5V Signal wire (read by analog pin A2 on Arduino)
+
+The real benefit to this project is the flap position indicator. You can use the built-in position sensor to display the position of the flaps on your panel.
+
+  - BLUE: 5V positive
+  - WHITE: 5V negative/ground
+  - YELLOW: 0-5V Signal wire (read by analog pin A2 on Arduino)
