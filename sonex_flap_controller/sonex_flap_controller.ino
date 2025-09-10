@@ -226,7 +226,7 @@ void retractFlapsOneNotch() {
     // need to retract to 0 in case partial travel has been done without increasing the current notch
     if (getCurrentSensorReading() >= ANGLES[0]){
       while (getCurrentSensorReading() >= ANGLES[0] ){
-        analogWrite(RETRACT_PWM, 0);
+        analogWrite(RETRACT_PWM, ACTUATOR_SPEED);
         delay(100);
       }
     }
@@ -254,7 +254,7 @@ void extendFlapsOneNotch() {
   } else {
     if (getCurrentSensorReading() <= ANGLES[NOTCH_COUNT - 1]){
       while (getCurrentSensorReading() <= ANGLES[NOTCH_COUNT - 1] ){
-        analogWrite(EXTEND_PWM, 0);
+        analogWrite(EXTEND_PWM, ACTUATOR_SPEED);
         delay(100);
       }
     }
