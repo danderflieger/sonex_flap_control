@@ -211,6 +211,7 @@ void retractFlapsOneNotch() {
   int SensorReading = getCurrentSensorReading();
   if (CURRENT_NOTCH > 0) {
     while (ANGLES[CURRENT_NOTCH - 1] <= SensorReading) {
+      SensorReading = getCurrentSensorReading();
       if (digitalRead(EXTEND_BUTTON) == LOW) {
         analogWrite(RETRACT_PWM, 0);
         analogWrite(EXTEND_PWM, 0);
@@ -238,6 +239,7 @@ void extendFlapsOneNotch() {
   int SensorReading = getCurrentSensorReading();
   if (CURRENT_NOTCH < NOTCH_COUNT - 1) {
     while (ANGLES[CURRENT_NOTCH + 1] >= SensorReading) {
+      SensorReading = getCurrentSensorReading();
       if (digitalRead(RETRACT_BUTTON) == LOW) {
         analogWrite(RETRACT_PWM, 0);
         analogWrite(EXTEND_PWM, 0);
