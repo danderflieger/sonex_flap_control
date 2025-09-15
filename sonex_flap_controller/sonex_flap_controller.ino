@@ -29,7 +29,7 @@
 
 
 // List of flap notches
-int ANGLES[] = { 0, 10, 20, 30, 40 };
+int ANGLES[] = { 0, 10, 20 }; //, 30, 40 };
 int NOTCH_COUNT = sizeof(ANGLES) / sizeof(ANGLES[0]);
 int CURRENT_NOTCH = 0;
 
@@ -57,7 +57,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 void setup() {
   // set up serial output
   Serial.begin(9600);
-  Serial.println("Serial started ...");
+  //Serial.println("Serial started ...");
 
   // set up the button pins
   pinMode(EXTEND_BUTTON, INPUT_PULLUP);
@@ -66,7 +66,7 @@ void setup() {
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println(F("SSD1306 allocation failed"));
-    for(;;); // Don't proceed, loop forever
+    //for(;;); // Don't proceed, loop forever
   }
 
 
@@ -91,11 +91,11 @@ void setup() {
 void loop() {
 
   if (digitalRead(RETRACT_BUTTON) == LOW) {
-    // Serial.println("Retract Button Pressed");
+    Serial.println("Retract Button Pressed");
     // analogWrite(RETRACT_PWM, ACTUATOR_SPEED);
     retractFlapsOneNotch();
   } else if (digitalRead(EXTEND_BUTTON) == LOW) {
-    // Serial.println("Extend Button Pressed");   
+    Serial.println("Extend Button Pressed");   
     // analogWrite(EXTEND_PWM, ACTUATOR_SPEED);
     extendFlapsOneNotch();
   } else {
