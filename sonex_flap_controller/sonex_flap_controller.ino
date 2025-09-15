@@ -26,16 +26,24 @@
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
-
+#define DIRECTION_RETRACT -1
+#define DIRECTION_STOP 0
+#define DIRECTION_EXTEND 1
 
 // List of flap notches
 int ANGLES[] = { 0, 10, 20 }; //, 30, 40 };
 int NOTCH_COUNT = sizeof(ANGLES) / sizeof(ANGLES[0]);
 int CURRENT_NOTCH = 0;
+int TARGET_NOTCH = 0;
 
 int TITLE_MARGIN = 8;
 int TITLE_HEIGHT = 20;
 int ACTUATOR_SPEED = 255;
+
+// Define a public direction - 0:DIRECTION_STOP, 1: DIRECTION_EXTEND, -1: DIRECTION_RETRACT
+// This value will be used to determine if the actuator should be moving in one direction or
+// the other (or stop)
+int MOTION_DIRECTION = DIRECTION_STOP;
 
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
@@ -47,16 +55,16 @@ int ACTUATOR_SPEED = 255;
 #define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-#define EXTEND_BUTTON 2
-#define RETRACT_BUTTON 3
+#define EXTEND_BUTTON 3
+#define RETRACT_BUTTON 2
 
-#define EXTEND_PWM 10
-#define RETRACT_PWM 11
+#define EXTEND_PWM 11
+#define RETRACT_PWM 10
 
 
 void setup() {
   // set up serial output
-  Serial.begin(9600);
+  Serial.begin(115200);
   //Serial.println("Serial started ...");
 
   // set up the button pins
@@ -79,10 +87,19 @@ void setup() {
   drawReferenceLines();
   drawReferenceValues();
 
-  int SensorReading = map( analogRead(A2), 10, 870, ANGLES[0], ANGLES[NOTCH_COUNT - 1] );
-  while (SensorReading < ANGLES[CURRENT_NOTCH] || CURRENT_NOTCH >= NOTCH_COUNT) {
-    CURRENT_NOTCH++;
-  }
+
+  // Get the current sensor reading to determine where the flaps are currently positioned
+  int SensorReading = getCurrentSensorReading(); //map( analogRead(A2), 10, 870, ANGLES[0], ANGLES[NOTCH_COUNT - 1] );
+
+  // Find the current notch - go through the list of notches to see if the reading
+  // falls above it and below the next one
+  CURRENT_NOTCH = getCurrentNotch();
+
+  Serial.print("Beginning CURRENT_NOTCH:");Serial.println(CURRENT_NOTCH);
+
+  // while (SensorReading < ANGLES[CURRENT_NOTCH] || CURRENT_NOTCH >= NOTCH_COUNT) {
+  //   CURRENT_NOTCH++;
+  // }
 
 
 
@@ -90,18 +107,82 @@ void setup() {
 
 void loop() {
 
+  CURRENT_NOTCH = getCurrentNotch();
   if (digitalRead(RETRACT_BUTTON) == LOW) {
-    Serial.println("Retract Button Pressed");
-    // analogWrite(RETRACT_PWM, ACTUATOR_SPEED);
-    retractFlapsOneNotch();
+    Serial.println("RETRACT Button pressed ...");
+    if (MOTION_DIRECTION == DIRECTION_EXTEND) {
+      MOTION_DIRECTION = DIRECTION_STOP;
+      delay(100);
+    } else {
+      MOTION_DIRECTION = DIRECTION_RETRACT;
+      if (getCurrentSensorReading() >= ANGLES[CURRENT_NOTCH] && CURRENT_NOTCH != 0){
+        TARGET_NOTCH = setPreviousNotch();
+      }
+      delay(100);
+    }
   } else if (digitalRead(EXTEND_BUTTON) == LOW) {
-    Serial.println("Extend Button Pressed");   
-    // analogWrite(EXTEND_PWM, ACTUATOR_SPEED);
-    extendFlapsOneNotch();
-  } else {
-    analogWrite(RETRACT_PWM, 0);
-    analogWrite(EXTEND_PWM, 0);
+    Serial.println("EXTEND Button pressed ...");
+    if (MOTION_DIRECTION == DIRECTION_RETRACT) {
+      MOTION_DIRECTION = DIRECTION_STOP;
+      delay(100);
+    } else {
+      MOTION_DIRECTION = DIRECTION_EXTEND;
+      if (getCurrentSensorReading() <= ANGLES[CURRENT_NOTCH] && CURRENT_NOTCH < NOTCH_COUNT) {
+        TARGET_NOTCH = setNextNotch();
+      }
+      delay(100);
+    }
   }
+
+  Serial.print("CURRENT_NOTCH:");Serial.println(CURRENT_NOTCH);
+  Serial.print("TARGET_NOTCH:");Serial.println(TARGET_NOTCH);
+  Serial.print("ANGLES[TARGET_NOTCH]:");Serial.println(ANGLES[TARGET_NOTCH]);
+
+  if (MOTION_DIRECTION == DIRECTION_RETRACT) {
+
+    Serial.println("MOTION_DIRECTION: DIRECTION_RETRACT");    
+
+    if (ANGLES[TARGET_NOTCH] >= getCurrentSensorReading()) {
+      analogWrite (EXTEND_PWM, 0);
+      analogWrite (RETRACT_PWM, ACTUATOR_SPEED);
+    } else {
+
+      analogWrite (RETRACT_PWM, 0);
+      analogWrite (EXTEND_PWM, 0);
+      MOTION_DIRECTION = DIRECTION_STOP;
+      Serial.println("MOTION_DIRECTION: DIRECTION_STOP (if statement ln 152)");
+
+      CURRENT_NOTCH = getCurrentNotch();
+    }
+  } else if (MOTION_DIRECTION == DIRECTION_EXTEND) {
+
+    Serial.println("MOTION_DIRECTION: DIRECTION_EXTEND");
+
+    if (ANGLES[TARGET_NOTCH] <= getCurrentSensorReading()) {
+      analogWrite (RETRACT_PWM, 0);
+      analogWrite (EXTEND_PWM, ACTUATOR_SPEED);
+    } else {
+      
+      analogWrite (EXTEND_PWM, 0);
+      analogWrite (RETRACT_PWM, 0);
+      MOTION_DIRECTION = DIRECTION_STOP;
+      Serial.println("MOTION_DIRECTION: DIRECTION_STOP (if statement ln 167)");
+      
+      CURRENT_NOTCH = getCurrentNotch();
+    }
+  } 
+  // if (digitalRead(RETRACT_BUTTON) == LOW) {
+  //   Serial.println("Retract Button Pressed");
+  //   // analogWrite(RETRACT_PWM, ACTUATOR_SPEED);
+  //   retractFlapsOneNotch();
+  // } else if (digitalRead(EXTEND_BUTTON) == LOW) {
+  //   Serial.println("Extend Button Pressed");   
+  //   // analogWrite(EXTEND_PWM, ACTUATOR_SPEED);
+  //   extendFlapsOneNotch();
+  // } else {
+  //   analogWrite(RETRACT_PWM, 0);
+  //   analogWrite(EXTEND_PWM, 0);
+  // }
   
   // int SensorReading = getTestAngleData();
   int SensorReading = getCurrentSensorReading(); // map( analogRead(A2), 10, 870, ANGLES[0], ANGLES[NOTCH_COUNT - 1] );
@@ -206,6 +287,18 @@ int getCurrentSensorReading() {
   return map( analogRead(A2), 10, 870, ANGLES[0], ANGLES[NOTCH_COUNT - 1] );
 }
 
+int getCurrentNotch() {
+  int currentNotch = 0;
+  int SensorReading = getCurrentSensorReading();
+  for(int i = 0; i < NOTCH_COUNT; i++) {
+    if (ANGLES[i] >= SensorReading) {
+      currentNotch = i;
+      break;
+    }
+  }
+  return currentNotch;
+}
+
 void retractFlapsOneNotch() {
 
   int SensorReading = getCurrentSensorReading();
@@ -263,6 +356,46 @@ void extendFlapsOneNotch() {
       }
     }
   }
+}
+
+void stopFlapMotion() {
+  analogWrite(RETRACT_PWM, 0);
+  analogWrite(EXTEND_PWM, 0);
+
+}
+
+int setPreviousNotch() {
+  int previousNotch = NOTCH_COUNT - 1;
+  int currentSensorReading = getCurrentSensorReading();
+  if (CURRENT_NOTCH <= 0) {
+    previousNotch = 0;
+  } else {
+    for (int i = NOTCH_COUNT - 1; i >= 0; i--) {
+      if (ANGLES[i] > currentSensorReading) {
+        previousNotch = i;
+      }
+    }
+  }
+  
+  return previousNotch;
+}
+
+int setNextNotch() {
+
+  int nextNotch = 0;
+  int currentSensorReading = getCurrentSensorReading();
+  if (CURRENT_NOTCH > NOTCH_COUNT) {
+    nextNotch = NOTCH_COUNT - 1;
+  } else {
+    for (int i = 0; i < NOTCH_COUNT; i++) {
+      if (ANGLES[i] < currentSensorReading) {
+        nextNotch = i;
+      }
+    }
+  }
+  
+  return nextNotch;
+
 }
 
 
