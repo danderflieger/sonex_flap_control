@@ -185,9 +185,14 @@ void loop() {
   // }
   
   // int SensorReading = getTestAngleData();
-  int SensorReading = getCurrentSensorReading(); // map( analogRead(A2), 10, 870, ANGLES[0], ANGLES[NOTCH_COUNT - 1] );
-  drawNewAngle(SensorReading);
-  Serial.print("loop() sensorReading: ");Serial.println(SensorReading, DEC);
+  
+  
+  // int SensorReading = getCurrentSensorReading(); // map( analogRead(A2), 10, 870, ANGLES[0], ANGLES[NOTCH_COUNT - 1] );
+  // drawNewAngle(SensorReading);
+  
+  drawNewAngle();
+  
+  // Serial.print("loop() sensorReading: ");Serial.println(SensorReading, DEC);
   delay(500);
   
 }
@@ -260,19 +265,31 @@ void drawReferenceValue(int angle, int notchNumber, int distance) {
 
 }
 
-void drawNewAngle(int angle) {
-  // angle = (angle / 2) * 2;
-  // int numberOfNotches = sizeof(ANGLES) / sizeof(ANGLES[0]);
-  int screenDistanceBetweenNotches = (SCREEN_WIDTH - (TITLE_MARGIN * 2)) / NOTCH_COUNT;
-  
-  int yPosition = map(angle, ANGLES[0], ANGLES[NOTCH_COUNT - 1], TITLE_HEIGHT, SCREEN_WIDTH - TITLE_HEIGHT);
+void drawNewAngle() {
+  int angle = getCurrentSensorReading();
+  int yPosition = map(angle, ANGLES[0], ANGLES[NOTCH_COUNT - 1], TITLE_HEIGHT, SCREEN_WIDTH);
   yPosition = (yPosition / 2) * 2;
-  // Serial.print("new angle yPosition: "); Serial.println(yPosition);
-  display.fillRect(0, TITLE_HEIGHT, 22, SCREEN_WIDTH, SSD1306_BLACK);
-  display.fillRect(2, yPosition + TITLE_MARGIN -1, 18, 5, SSD1306_WHITE);
+  display.fillRect(0, TITLE_HEIGHT, 22, SCREEN_WIDTH, SSD1306_BLACK); 
+  display.fillRect(2, yPosition + TITLE_MARGIN - 1, 18, 5, SSD1306_WHITE);
   display.display();
 
 }
+
+// void drawNewAngle(int angle) {
+//   // angle = (angle / 2) * 2;
+//   // int numberOfNotches = sizeof(ANGLES) / sizeof(ANGLES[0]);
+//   int screenDistanceBetweenNotches = (SCREEN_WIDTH - (TITLE_MARGIN * 2)) / NOTCH_COUNT;
+  
+//   int yPosition = map(angle, ANGLES[0], ANGLES[NOTCH_COUNT - 1], TITLE_HEIGHT, SCREEN_WIDTH - TITLE_HEIGHT);
+//   yPosition = (yPosition / 2) * 2;
+//   // Serial.print("new angle yPosition: "); Serial.println(yPosition);
+//   display.fillRect(0, TITLE_HEIGHT, 22, SCREEN_WIDTH, SSD1306_BLACK);
+//   display.fillRect(2, yPosition + TITLE_MARGIN -1, 18, 5, SSD1306_WHITE);
+//   display.display();
+
+// }
+
+
 
 int getYPosition(int angle) {
   // int newValue = map(angle, 0, ANGLE3 + 5, 20, SCREEN_WIDTH);
@@ -312,7 +329,8 @@ void retractFlapsOneNotch() {
         break;
       } else {
         analogWrite(RETRACT_PWM, ACTUATOR_SPEED);
-        drawNewAngle(SensorReading);
+        //drawNewAngle(SensorReading);
+        drawNewAngle();
       }
     }
     CURRENT_NOTCH = CURRENT_NOTCH -1;
@@ -321,7 +339,8 @@ void retractFlapsOneNotch() {
     if (getCurrentSensorReading() >= ANGLES[0]){
       while (getCurrentSensorReading() >= ANGLES[0] ){
         analogWrite(RETRACT_PWM, ACTUATOR_SPEED);
-        drawNewAngle(SensorReading);
+        // drawNewAngle(SensorReading);
+        drawNewAngle();
         // delay(100);
       }
     }
@@ -342,7 +361,8 @@ void extendFlapsOneNotch() {
         break;
       } else {
         analogWrite(EXTEND_PWM, ACTUATOR_SPEED);
-        drawNewAngle(SensorReading);
+        // drawNewAngle(SensorReading);
+        drawNewAngle();
       }
       
     }
@@ -351,7 +371,8 @@ void extendFlapsOneNotch() {
     if (getCurrentSensorReading() <= ANGLES[NOTCH_COUNT - 1]){
       while (getCurrentSensorReading() <= ANGLES[NOTCH_COUNT - 1] ){
         analogWrite(EXTEND_PWM, ACTUATOR_SPEED);
-        drawNewAngle(SensorReading);
+        // drawNewAngle(SensorReading);
+        drawNewAngle();
         // delay(100);
       }
     }
