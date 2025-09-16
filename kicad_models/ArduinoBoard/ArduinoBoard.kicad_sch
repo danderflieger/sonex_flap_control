@@ -767,37 +767,34 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "Device:C_Small"
+		(symbol "Device:Thermistor_NTC"
 			(pin_numbers
 				(hide yes)
 			)
 			(pin_names
-				(offset 0.254)
-				(hide yes)
+				(offset 0)
 			)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "C"
-				(at 0.254 1.778 0)
+			(property "Reference" "TH"
+				(at -4.445 0 90)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
-					(justify left)
 				)
 			)
-			(property "Value" "C_Small"
-				(at 0.254 -2.032 0)
+			(property "Value" "Thermistor_NTC"
+				(at 3.175 0 90)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
-					(justify left)
 				)
 			)
 			(property "Footprint" ""
-				(at 0 0 0)
+				(at 0 1.27 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -806,6 +803,15 @@
 				)
 			)
 			(property "Datasheet" "~"
+				(at 0 1.27 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Temperature dependent resistor, negative temperature coefficient"
 				(at 0 0 0)
 				(effects
 					(font
@@ -814,7 +820,7 @@
 					(hide yes)
 				)
 			)
-			(property "Description" "Unpolarized capacitor, small symbol"
+			(property "ki_keywords" "thermistor NTC resistor sensor RTD"
 				(at 0 0 0)
 				(effects
 					(font
@@ -823,7 +829,7 @@
 					(hide yes)
 				)
 			)
-			(property "ki_keywords" "capacitor cap"
+			(property "ki_fp_filters" "*NTC* *Thermistor* PIN?ARRAY* bornier* *Terminal?Block* R_*"
 				(at 0 0 0)
 				(effects
 					(font
@@ -832,22 +838,85 @@
 					(hide yes)
 				)
 			)
-			(property "ki_fp_filters" "C_*"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "C_Small_0_1"
-				(polyline
-					(pts
-						(xy -1.524 0.508) (xy 1.524 0.508)
-					)
+			(symbol "Thermistor_NTC_0_1"
+				(arc
+					(start -3.175 2.413)
+					(mid -3.0506 2.3165)
+					(end -3.048 2.159)
 					(stroke
-						(width 0.3048)
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -3.048 2.794)
+					(mid -2.9736 2.9736)
+					(end -2.794 3.048)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -2.794 3.048)
+					(mid -2.6144 2.9736)
+					(end -2.54 2.794)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -2.794 2.54)
+					(mid -2.9736 2.6144)
+					(end -3.048 2.794)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -2.794 1.905)
+					(mid -2.9736 1.9794)
+					(end -3.048 2.159)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -2.54 2.159)
+					(mid -2.6144 1.9794)
+					(end -2.794 1.905)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -2.159 2.794)
+					(mid -2.434 2.5608)
+					(end -2.794 2.54)
+					(stroke
+						(width 0)
 						(type default)
 					)
 					(fill
@@ -856,10 +925,58 @@
 				)
 				(polyline
 					(pts
-						(xy -1.524 -0.508) (xy 1.524 -0.508)
+						(xy -2.54 2.159) (xy -2.54 2.794)
 					)
 					(stroke
-						(width 0.3302)
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -2.54 -3.683) (xy -2.54 -1.397) (xy -2.794 -2.159) (xy -2.286 -2.159) (xy -2.54 -1.397) (xy -2.54 -1.651)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.778 2.54) (xy -1.778 1.524) (xy 1.778 -1.524) (xy 1.778 -2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.778 -1.397) (xy -1.778 -3.683) (xy -2.032 -2.921) (xy -1.524 -2.921) (xy -1.778 -3.683)
+						(xy -1.778 -3.429)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(rectangle
+					(start -1.016 2.54)
+					(end 1.016 -2.54)
+					(stroke
+						(width 0.254)
 						(type default)
 					)
 					(fill
@@ -867,10 +984,10 @@
 					)
 				)
 			)
-			(symbol "C_Small_1_1"
+			(symbol "Thermistor_NTC_1_1"
 				(pin passive line
-					(at 0 2.54 270)
-					(length 2.032)
+					(at 0 3.81 270)
+					(length 1.27)
 					(name "~"
 						(effects
 							(font
@@ -887,8 +1004,8 @@
 					)
 				)
 				(pin passive line
-					(at 0 -2.54 90)
-					(length 2.032)
+					(at 0 -3.81 90)
+					(length 1.27)
 					(name "~"
 						(effects
 							(font
@@ -1942,22 +2059,10 @@
 		(uuid "9e243e03-064f-4691-90b3-09ccd9ad5f7e")
 	)
 	(junction
-		(at 163.83 113.03)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "a42081a2-0205-4f1d-bdb5-309fe824348f")
-	)
-	(junction
 		(at 129.54 173.99)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "adc13187-5618-40e7-8800-52cd33fa2870")
-	)
-	(junction
-		(at 168.91 113.03)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "cd077233-06b2-4697-bf16-cac94bb8603d")
 	)
 	(junction
 		(at 132.08 121.92)
@@ -2169,16 +2274,6 @@
 	)
 	(wire
 		(pts
-			(xy 163.83 99.06) (xy 163.83 113.03)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "36ef2507-dfc0-4be0-88a9-1e441bc86c45")
-	)
-	(wire
-		(pts
 			(xy 161.29 66.04) (xy 129.54 66.04)
 		)
 		(stroke
@@ -2236,16 +2331,6 @@
 			(type default)
 		)
 		(uuid "4791f6d7-98e7-4675-8382-6e1cf8c80728")
-	)
-	(wire
-		(pts
-			(xy 168.91 104.14) (xy 168.91 113.03)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4a4184ab-4b01-4c65-9fdb-ce4e0c893e81")
 	)
 	(wire
 		(pts
@@ -2429,6 +2514,16 @@
 	)
 	(wire
 		(pts
+			(xy 168.91 115.57) (xy 168.91 118.11)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "870c146a-c695-44dc-ba7f-5ec9dc8946a9")
+	)
+	(wire
+		(pts
 			(xy 149.86 106.68) (xy 144.78 106.68)
 		)
 		(stroke
@@ -2486,16 +2581,6 @@
 			(type default)
 		)
 		(uuid "8f2511ba-7e23-4c59-9b9b-05e6238d820c")
-	)
-	(wire
-		(pts
-			(xy 168.91 113.03) (xy 168.91 118.11)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8f796bf2-7fa6-4641-8bb4-e416672cda94")
 	)
 	(wire
 		(pts
@@ -2629,6 +2714,16 @@
 	)
 	(wire
 		(pts
+			(xy 168.91 104.14) (xy 168.91 107.95)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c06a9622-48f3-4f4a-9c72-79afadb0e39e")
+	)
+	(wire
+		(pts
 			(xy 115.57 57.15) (xy 137.16 57.15)
 		)
 		(stroke
@@ -2699,7 +2794,7 @@
 	)
 	(wire
 		(pts
-			(xy 163.83 113.03) (xy 163.83 120.65)
+			(xy 163.83 99.06) (xy 163.83 120.65)
 		)
 		(stroke
 			(width 0)
@@ -2896,6 +2991,76 @@
 			(project "ArduinoBoard"
 				(path "/98bf385f-4cd5-4c0c-bda4-6735edf00281"
 					(reference "H7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:Thermistor_NTC")
+		(at 168.91 111.76 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "0de563cb-ed38-4af1-b59e-193d5036c7d6")
+		(property "Reference" "TH1"
+			(at 171.45 110.8074 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Thermistor_NTC"
+			(at 171.45 113.3474 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Vertical"
+			(at 168.91 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 168.91 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Temperature dependent resistor, negative temperature coefficient"
+			(at 168.91 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "9a611a00-d8f3-45ce-9117-de858fb951d3")
+		)
+		(pin "1"
+			(uuid "b2df8303-19fb-41d3-b548-a4e98c6556b3")
+		)
+		(instances
+			(project ""
+				(path "/98bf385f-4cd5-4c0c-bda4-6735edf00281"
+					(reference "TH1")
 					(unit 1)
 				)
 			)
@@ -3323,73 +3488,6 @@
 			(project "ArduinoBoard"
 				(path "/98bf385f-4cd5-4c0c-bda4-6735edf00281"
 					(reference "J6")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C_Small")
-		(at 166.37 113.03 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "5b1b770f-84be-41f8-b38a-2aede3d255a5")
-		(property "Reference" "C1"
-			(at 172.466 110.998 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "0.1uF"
-			(at 172.72 113.284 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Capacitor_THT:C_Disc_D3.0mm_W2.0mm_P2.50mm"
-			(at 166.37 113.03 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 166.37 113.03 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Unpolarized capacitor, small symbol"
-			(at 166.37 113.03 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "11d20f95-4d20-4bf0-8269-a71abc32ae97")
-		)
-		(pin "1"
-			(uuid "73ba84b8-5af3-414b-a970-43827c2521f6")
-		)
-		(instances
-			(project ""
-				(path "/98bf385f-4cd5-4c0c-bda4-6735edf00281"
-					(reference "C1")
 					(unit 1)
 				)
 			)
