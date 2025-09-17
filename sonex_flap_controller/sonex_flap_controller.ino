@@ -63,11 +63,11 @@ int MOTION_DIRECTION = DIRECTION_STOP;
 #define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-#define EXTEND_BUTTON 3
 #define RETRACT_BUTTON 2
+#define EXTEND_BUTTON 3
 
-#define EXTEND_PWM_PIN 11
 #define RETRACT_PWM_PIN 10
+#define EXTEND_PWM_PIN 11
 
 
 void setup() {
