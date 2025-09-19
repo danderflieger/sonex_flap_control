@@ -256,7 +256,7 @@ void loop() {
         their desired position
         ****************************************************************************/
 
-        TARGET_NOTCH = setPreviousNotch();
+        TARGET_NOTCH = getPreviousNotch();
 
       }
       delay(100); // is this necessary? Probably not
@@ -276,15 +276,13 @@ void loop() {
     } else {
       MOTION_DIRECTION = DIRECTION_EXTEND;
       if (getCurrentSensorReading() <= ANGLES[CURRENT_NOTCH] && CURRENT_NOTCH < NOTCH_COUNT) {
-        TARGET_NOTCH = setNextNotch();
+        TARGET_NOTCH = getNextNotch();
       }
       delay(100); // Is this necessary? probably not
     }
   }
 
-  Serial.print("CURRENT_NOTCH:");Serial.println(CURRENT_NOTCH);
-  Serial.print("TARGET_NOTCH:");Serial.println(TARGET_NOTCH);
-  Serial.print("ANGLES[TARGET_NOTCH]:");Serial.println(ANGLES[TARGET_NOTCH]);
+
 
   /****************************************************************************
   Now that we know what the pilot WANTS the flaps to do, time to actually do 
@@ -295,7 +293,7 @@ void loop() {
   
   if (MOTION_DIRECTION == DIRECTION_RETRACT) {
 
-    Serial.println("MOTION_DIRECTION: DIRECTION_RETRACT");    
+    // Serial.println("MOTION_DIRECTION: DIRECTION_RETRACT");    
     
     /****************************************************************************
     Start/continue retracting if that's what the pilot wants to do. 
@@ -363,7 +361,7 @@ void loop() {
     Looks like the flaps are more retracted than we want, so EXTEND them
     ***************************************************************************/
 
-    Serial.println("MOTION_DIRECTION: DIRECTION_EXTEND");
+    // Serial.println("MOTION_DIRECTION: DIRECTION_EXTEND");
 
     if (getCurrentSensorReading() <= ANGLES[TARGET_NOTCH] ) {
 
@@ -398,6 +396,11 @@ void loop() {
   ***************************************************************************/
   drawNewAngle();
   
+  Serial.print("CURRENT_NOTCH:");Serial.print(CURRENT_NOTCH);
+  Serial.print(" | TARGET_NOTCH:");Serial.print(TARGET_NOTCH);
+  Serial.print(" | ANGLES[TARGET_NOTCH]:");Serial.println(ANGLES[TARGET_NOTCH]);
+  Serial.print("cur angle:");Serial.print(getCurrentSensorReading()); Serial.print(" | target angle: "); Serial.println(ANGLES[TARGET_NOTCH]);
+  delay(100);
 }
 
 
@@ -415,12 +418,13 @@ used as a reference for the moving line (thus, reference lines)
 */
 void drawReferenceLines() {
   int numberOfNotches = sizeof(ANGLES) / sizeof(ANGLES[0]);
-  int screenDistanceBetweenNotches = (SCREEN_WIDTH - (TITLE_MARGIN * 2)) / numberOfNotches;
+  // int screenDistanceBetweenNotches = (SCREEN_WIDTH - (TITLE_MARGIN * 2)) / numberOfNotches;
 
   // iterate through the defined notch settings
   for (int i = 0; i < numberOfNotches; i++) {
     Serial.print(ANGLES[i]); Serial.print(":");
-    drawReferenceLine(ANGLES[i], i, screenDistanceBetweenNotches);
+    // drawReferenceLine(ANGLES[i], i, screenDistanceBetweenNotches);
+    drawReferenceLine(ANGLES[i], i);
   }
   Serial.println();
 }
@@ -429,9 +433,11 @@ void drawReferenceLines() {
 This is the function that draws each individual line - called from the function
 above - once for each element in the ANGLES[] array
 */
-void drawReferenceLine(int notch, int notchNumber, int distance) {
-  int yPosition = (notchNumber * distance) + TITLE_MARGIN;
-  display.fillRect(23, yPosition + TITLE_MARGIN + 11, 13, 5, SSD1306_WHITE);
+// void drawReferenceLine(int notch, int notchNumber, int distance) {
+void drawReferenceLine(int angle, int notchNumber) {  
+  int yPosition = getYPosition(angle);
+  // int yPosition = (notchNumber * distance) + TITLE_MARGIN;
+  display.fillRect(23, yPosition + TITLE_MARGIN, 13, 5, SSD1306_WHITE);
   // display.fillRect(23, getYPosition(angle)+TITLE_MARGIN, 13, 5, SSD1306_WHITE);
   display.display();
 
@@ -460,11 +466,12 @@ notch of flaps should represent (e.g. in angles) - defined in the ANGLES[] array
 */
 void drawReferenceValues() {
   // int numberOfNotches = sizeof(ANGLES) / sizeof(ANGLES[0]);
-  int screenDistanceBetweenNotches = (SCREEN_WIDTH - (TITLE_MARGIN * 2)) / NOTCH_COUNT;
+  //int screenDistanceBetweenNotches = (SCREEN_WIDTH - (TITLE_MARGIN * 2)) / NOTCH_COUNT;
 
   // iterate through the defined notch settings
   for (int i = 0; i < NOTCH_COUNT; i++) {
-    drawReferenceValue(ANGLES[i], i, screenDistanceBetweenNotches);
+    int yPosition = getYPosition(ANGLES[i] + 3);
+    drawReferenceValue(ANGLES[i], i);
   }
 
 }
@@ -473,7 +480,7 @@ void drawReferenceValues() {
 This is the function that writes each individual angle value (e.g. a number) - called 
 from the function above - once for each element in the ANGLES[] array
 */
-void drawReferenceValue(int angle, int notchNumber, int distance) {
+void drawReferenceValue(int angle, int notchNumber) {
   // int yPosition = notchNumber * distance + TITLE_MARGIN;
   int yPosition = getYPosition(angle);
   
@@ -488,7 +495,7 @@ void drawReferenceValue(int angle, int notchNumber, int distance) {
   
   display.setTextSize(2);
   display.setTextColor(SSD1306_WHITE);
-  display.setCursor(40, yPosition + TITLE_MARGIN + 6 );
+  display.setCursor(40, yPosition + 3 );
   display.cp437(true);
 
   display.write(textValues);
@@ -506,27 +513,13 @@ void drawNewAngle() {
 
   int angle = getCurrentSensorReading();
   int yPosition = getYPosition(angle); //map(angle, ANGLES[0], ANGLES[NOTCH_COUNT - 1], TITLE_HEIGHT, SCREEN_WIDTH);
-  yPosition = (yPosition / 2) * 2; // rounds the position to the nearest 2 - keeps it from jumping around too much
+  // yPosition = (yPosition / 2) * 2; // rounds the position to the nearest 2 - keeps it from jumping around too much
   
   display.fillRect(0, TITLE_HEIGHT, 22, SCREEN_WIDTH, SSD1306_BLACK); 
   display.fillRect(2, yPosition + TITLE_MARGIN - 1, 18, 5, SSD1306_WHITE);
   display.display();
 
 }
-
-// void drawNewAngle(int angle) {
-//   // angle = (angle / 2) * 2;
-//   // int numberOfNotches = sizeof(ANGLES) / sizeof(ANGLES[0]);
-//   int screenDistanceBetweenNotches = (SCREEN_WIDTH - (TITLE_MARGIN * 2)) / NOTCH_COUNT;
-  
-//   int yPosition = map(angle, ANGLES[0], ANGLES[NOTCH_COUNT - 1], TITLE_HEIGHT, SCREEN_WIDTH - TITLE_HEIGHT);
-//   yPosition = (yPosition / 2) * 2;
-//   // Serial.print("new angle yPosition: "); Serial.println(yPosition);
-//   display.fillRect(0, TITLE_HEIGHT, 22, SCREEN_WIDTH, SSD1306_BLACK);
-//   display.fillRect(2, yPosition + TITLE_MARGIN -1, 18, 5, SSD1306_WHITE);
-//   display.display();
-
-// }
 
 
 /*
@@ -539,8 +532,8 @@ map(value, fromLow, fromHigh, toLow, toHigh) -> interpolated value
 */
 int getYPosition(int angle) {
   
-  int newValue = map(angle, ANGLES[0], ANGLES[NOTCH_COUNT - 1], TITLE_HEIGHT, SCREEN_WIDTH);
-  Serial.print("angle:");Serial.print(angle); Serial.print(" yPosition: "); Serial.println(newValue);
+  int newValue = map(angle, ANGLES[0], ANGLES[NOTCH_COUNT - 1], TITLE_HEIGHT, SCREEN_WIDTH - TITLE_HEIGHT);
+  
   return newValue;
   
 }
@@ -564,28 +557,46 @@ int getCurrentSensorReading() {
   return map( sensorReading, FULL_RETRACT_VALUE, FULL_EXTEND_VALUE, ANGLES[0], ANGLES[NOTCH_COUNT - 1] );
 }
 
+
+
 /*
 returns an integer value denoting the current "notch" based on the current angle read by the 
 position sensor in the flap actuator
 */
 int getCurrentNotch() {
+  
   int currentNotch = 0;
   int SensorReading = getCurrentSensorReading();
-  for(int i = 0; i < NOTCH_COUNT; i++) {
-    if (ANGLES[i] >= SensorReading) {
-      currentNotch = i;
-      break;
+
+  // handle case where SensorReading is less than the first angle in ANGLES[] (ANGLES[0])
+  if (SensorReading < ANGLES[0]) {
+    currentNotch = 0;
+  }
+
+  // Iterate through the array to find the notch
+  for (int i = 0; i < NOTCH_COUNT - 1; i++) {
+    if (SensorReading >= ANGLES[i] && SensorReading < ANGLES[i + 1]) {
+      currentNotch = i; // Found the notch
     }
   }
+
+  // Handle cases where the sensorAngle is greater than or equal to the last element
+  if (SensorReading >= ANGLES[NOTCH_COUNT - 1]) {
+    currentNotch = NOTCH_COUNT - 1; // Last notch
+  }
+
   return currentNotch;
+
 }
 
 
 /*
 returns the current notch - 1
 */
-int setPreviousNotch() {
-  int previousNotch = NOTCH_COUNT - 1;
+int getPreviousNotch() {
+  // int previousNotch = NOTCH_COUNT - 1;
+  int currentNotch = getCurrentNotch();
+  int previousNotch = currentNotch;
   int currentSensorReading = getCurrentSensorReading();
 
   // check to see if the actuator is already at the first notch (based on ANGLES[] elements) ...
@@ -594,9 +605,9 @@ int setPreviousNotch() {
     previousNotch = 0;
   } else {
     // ... otherwise, find the previous notch and return the element id
-    for (int i = NOTCH_COUNT - 1; i >= 0; i--) {
-      if (ANGLES[i] > currentSensorReading) {
-        previousNotch = i;
+    for (int i = currentNotch; i > 0; i--) {
+      if (currentSensorReading >= ANGLES[i]) {
+        previousNotch = i - 1;
         break; // we found what we're looking for and can exit the loop
       }
     }
@@ -608,20 +619,20 @@ int setPreviousNotch() {
 /*
 returns the CURRENT_NOTCH + 1
 */
-int setNextNotch() {
-
-  int nextNotch = 0;
+int getNextNotch() {
+  int currentNotch = getCurrentNotch();
+  int nextNotch = currentNotch;
   int currentSensorReading = getCurrentSensorReading();
 
   // check to see if the actuator is already at the last notch (based on ANGLES[] elements) ...
-  if (CURRENT_NOTCH > NOTCH_COUNT) {
+  if (CURRENT_NOTCH >= NOTCH_COUNT) {
     // ... if so, set it to the last notch again
     nextNotch = NOTCH_COUNT - 1;
   } else {
     // ... otherwise, find the next notch and return the element id
-    for (int i = 0; i < NOTCH_COUNT; i++) {
-      if (ANGLES[i] < currentSensorReading) {
-        nextNotch = i;
+    for (int i = 0; i < currentNotch; i++) {
+      if (currentSensorReading <= ANGLES[i] ) {
+        nextNotch = i + 1;
         break; // we found what we're looking for and can exit the loop
       }
     }
