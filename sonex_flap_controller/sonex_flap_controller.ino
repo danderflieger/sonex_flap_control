@@ -250,7 +250,7 @@ void loop() {
       Get the current notch and determine whether or not to move the flaps one more
       notch. 
       ****************************************************************************/
-      if (getCurrentSensorReading() >= ANGLES[CURRENT_NOTCH] && CURRENT_NOTCH != 0){
+      if (getCurrentSensorReading() >= ANGLES[getPreviousNotch()]){
         /*****************************************************************************
         the TARGET_NOTCH variable will be used to determine if the flaps have reached
         their desired position
@@ -271,14 +271,18 @@ void loop() {
     
     Serial.println("EXTEND Button pressed ...");
     if (MOTION_DIRECTION == DIRECTION_RETRACT) {
+    
       MOTION_DIRECTION = DIRECTION_STOP;
       delay(100); // Is this necessary? probably not
+    
     } else {
+    
       MOTION_DIRECTION = DIRECTION_EXTEND;
-      if (getCurrentSensorReading() <= ANGLES[CURRENT_NOTCH] && CURRENT_NOTCH < NOTCH_COUNT) {
+      if (getCurrentSensorReading() <= ANGLES[getNextNotch()]) {
         TARGET_NOTCH = getNextNotch();
       }
       delay(100); // Is this necessary? probably not
+    
     }
   }
 
@@ -605,8 +609,8 @@ int getPreviousNotch() {
     previousNotch = 0;
   } else {
     // ... otherwise, find the previous notch and return the element id
-    for (int i = currentNotch; i > 0; i--) {
-      if (currentSensorReading >= ANGLES[i]) {
+    for (int i = NOTCH_COUNT - 1; i > 0; i--) {
+      if (currentSensorReading >= ANGLES[i-1]) {
         previousNotch = i - 1;
         break; // we found what we're looking for and can exit the loop
       }
@@ -630,8 +634,8 @@ int getNextNotch() {
     nextNotch = NOTCH_COUNT - 1;
   } else {
     // ... otherwise, find the next notch and return the element id
-    for (int i = 0; i < currentNotch; i++) {
-      if (currentSensorReading <= ANGLES[i] ) {
+    for (int i = 0; i < NOTCH_COUNT; i++) {
+      if (currentSensorReading <= ANGLES[i+1] ) {
         nextNotch = i + 1;
         break; // we found what we're looking for and can exit the loop
       }
