@@ -23,9 +23,11 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
-
+// OLED screen size in pixels
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
+
+// a couple of pre-defined values that determine which way the flaps should move (or not)
 #define DIRECTION_RETRACT -1
 #define DIRECTION_STOP 0
 #define DIRECTION_EXTEND 1
@@ -38,19 +40,42 @@ actuator.
 #define FULL_RETRACT_VALUE 10
 #define FULL_EXTEND_VALUE 870
 
-// List of flap notches
-int ANGLES[] = { 0, 10, 20 }; //, 30, 40 };
+/**************************************************************************
+This is where you define your various flap notches. You can pretty much
+put any integer values you want to appear on the screen. Ideally you will
+do some testing to figure out what angles your flaps actually sit at for
+each notch. The first and last element in this array should be 0 and whatever
+full flaps are deflected to. Sonex says full flaps on the B model is 30 deg.
+Because they suggest 0 for clean, 10 for takeoff, and 30 for landing, that's 
+what I've put here. Feel free to add additional "notches" in there if you 
+think it's necessary. If you wanted to add a notch for 20 deg, it would look 
+like this:
+int ANGLES[] = { 0, 10, 20, 30 };
+***************************************************************************/ 
+int ANGLES[] = { 0, 10, 30 };
+
+
+// This defines the number of notches for later use
 int NOTCH_COUNT = sizeof(ANGLES) / sizeof(ANGLES[0]);
+
+
+/************************************************************************** 
+These two variables are used a lot to determine where the flaps currently
+are and where you want them to eventually stop.
+***************************************************************************/ 
 int CURRENT_NOTCH = 0;
 int TARGET_NOTCH = 0;
 
 int TITLE_MARGIN = 8;
 int TITLE_HEIGHT = 20;
-int ACTUATOR_SPEED = 255;
 
-// Define a public direction - 0:DIRECTION_STOP, 1: DIRECTION_EXTEND, -1: DIRECTION_RETRACT
-// This value will be used to determine if the actuator should be moving in one direction or
-// the other (or stop)
+
+/***************************************************************************
+ Define a public variable to define the current direction of the actuator - 
+ 0:DIRECTION_STOP, 1: DIRECTION_EXTEND, -1: DIRECTION_RETRACT
+ This value will be used to determine if the actuator should be moving in one direction or
+ the other (or stop) between button presses until it has reached the specified notch
+***************************************************************************/ 
 int MOTION_DIRECTION = DIRECTION_STOP;
 
 
@@ -63,56 +88,99 @@ int MOTION_DIRECTION = DIRECTION_STOP;
 #define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
+
+// define pin numbers for buttons
 #define RETRACT_BUTTON 2
 #define EXTEND_BUTTON 3
 
+/***************************************************************************
+Define pin numbers and speed for Pulse Width Modulation (PWM), which is used to tell 
+the motor driver to move at a certain speed or stop.
+
+In case you don't know what PWM is ... 
+
+The first two lines below define which of the Arduino's digital pins are to be used for
+PWM signalling (pins 10 and 11). They are both "digital" pins, meaning they can only be 
+either on or off (nothing in between).
+
+PWM is determined by turning each of the pins on and off at a set rate, from 0-255. 
+
+A PWM of 0 denotes that the pin is alway set to 0V. A PWM of 255 denotes that the pin
+is always set to 5V. A PWM of 127 denotes that the pin goes from 0V to 5V for half of
+each PWM cycle - on a typical Arduino (such as the Nano used in the project), that cycle is 
+about every 2 milliseconds. So a PWM signal of 127 means that it's about 1ms on and 1ms off. 
+
+To slow down the actuator, you would set your PWM signal at a low number - say 10. 
+To speed up the movement of the actuator, you would increase the "duty cycle" to something
+higher - up to 255. 
+
+There's a good write-up on Arduino's website:
+https://docs.arduino.cc/learn/microcontrollers/analog-output/ 
+
+The first two lines only define which pins to use for retracting and extending the flaps.
+The third line defines how fast the actuator should go. I don't see any reason to set it
+lower than full speed (because the Sonex flap actuator isn't super fast), so 255 it is. 
+***************************************************************************/ 
 #define RETRACT_PWM_PIN 10
 #define EXTEND_PWM_PIN 11
+#define ACTUATOR_SPEED 255
 
-
+// run the setup() function. This section runs one time only, when the Arduino is powered on
 void setup() {
   // set up serial output
   Serial.begin(115200);
-  //Serial.println("Serial started ...");
 
-  // set up the button pins
+  /*
+    set up the button pins. We are initiating each button with a pin number 
+    (defined by EXTEND_BUTTON or RETRACT_BUTTON defined above) 
+    and specifying that we want to connect the pin to a pull-up resistor. 
+    Basically, this adds a 5V signal to the pin at all times until we press a button
+    and ground the 5V. When that happens, the Arduino can tell that the button is pressed.
+  */ 
   pinMode(EXTEND_BUTTON, INPUT_PULLUP);
   pinMode(RETRACT_BUTTON, INPUT_PULLUP);
 
-  // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
+  /*
+   Set up the display. First, configure the correct type and I2C address (0x3c)
+   Next, clear it the screen (the library displays an Adafruit logo by default).
+   If you clearDisplay() immediately (like we're doing here), it doesn't appear.
+   Finally, set the rotation to 90 degrees - we want to use it in portrait mode
+   by using display.setRotation(1) -  you could also set it upside down using 
+   display.setRotation(3), but I haven't tested that - good luck if you choose to
+   do so. :)
+  */ 
   if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println(F("SSD1306 allocation failed"));
-    //for(;;); // Don't proceed, loop forever
   }
-
-
-  // Clear the buffer
   display.clearDisplay();
   display.setRotation(1);
 
+  /*
+   Next, use the drawTitle() function below to put a bar at the top of the screen with text that 
+   says "Flaps."  
+   
+   Then draw lines where the notches should be and finally draw numbers next to those 
+   lines - the lines and numbers will change depending on your settings in the ANGLES[] array 
+   above
+  */
   drawTitle();
-
   drawReferenceLines();
   drawReferenceValues();
 
 
   // Get the current sensor reading to determine where the flaps are currently positioned
-  int SensorReading = getCurrentSensorReading(); //map( analogRead(A2), 10, 870, ANGLES[0], ANGLES[NOTCH_COUNT - 1] );
+  int SensorReading = getCurrentSensorReading(); 
 
-  // Find the current notch - go through the list of notches to see if the reading
-  // falls above it and below the next one
+  // Find the current notch - the getCurrentNotch() function goes through the list of notches 
+  // to see if the flaps are set at a particular notch using the SensorReading we just grabbed
   CURRENT_NOTCH = getCurrentNotch();
 
   Serial.print("Beginning CURRENT_NOTCH:");Serial.println(CURRENT_NOTCH);
 
-  // while (SensorReading < ANGLES[CURRENT_NOTCH] || CURRENT_NOTCH >= NOTCH_COUNT) {
-  //   CURRENT_NOTCH++;
-  // }
-
-
-
 }
 
+
+// Run the loop() function - this function repeats over and over indefintely after the setup() function runs
 void loop() {
 
   /*****************************************************************************
@@ -133,16 +201,16 @@ void loop() {
   the flaps are currently set to. For example, if the flaps are set to 23 degrees,
   the getCurrentNotch() function will return the number 2.
 
-  Assigne the notch number and assign it to the CURRENT_NOTCH variable:
+  We assign the notch number to a variable called CURRENT_NOTCH
   *****************************************************************************/
-
   CURRENT_NOTCH = getCurrentNotch();
+
 
   /*****************************************************************************
   Next, look at the buttons to see if the pilot is trying to change the position
   of the flaps. There are two buttons: RETRACT_BUTTON and EXTEND_BUTTON. This
   could also be controlled with a switch. In either case, the pilot is giving input
-  to either extend or retract the flaps, or neither (e.g. not button is pressed or
+  to either extend or retract the flaps, or neither (e.g. no button is pressed or
   the switch is in the middle position)
   *****************************************************************************/
   if (digitalRead(RETRACT_BUTTON) == LOW) {
@@ -167,7 +235,7 @@ void loop() {
       *****************************************************************************/ 
 
       MOTION_DIRECTION = DIRECTION_STOP;
-      delay(100); // is this necessary? Probably not
+      delay(100); 
 
     } else {
       /*****************************************************************************
@@ -249,11 +317,11 @@ void loop() {
     extend pin to 0 (not extending) and the retract pin to whatever ACTUATOR_SPEED 
     is set to. 255 would be full speed. This is set near the top of this file.
 
-    These lines will tell the motor controller to stop:
+    These lines would tell the motor controller to stop:
     analogWrite (RETRACT_PWM_PIN, 0);
     analogWrite (EXTEND_PWM_PIN, 0);
 
-    These lines will tell the motor controller to retract (0 speed for extend, full
+    These lines would tell the motor controller to retract (0 speed for extend, full
     speed retract):
     analogWrite (EXTEND_PWM_PIN, 0);
     analogWrite (RETRACT_PWM_PIN, ACTUATOR_SPEED);
@@ -271,37 +339,44 @@ void loop() {
     OK, all that out of the way, let's tell the flaps to move or stop in the correct direction:
     ****************************************************************************/
     
-    if (ANGLES[TARGET_NOTCH] >= getCurrentSensorReading()) {
+    if (getCurrentSensorReading() >= ANGLES[TARGET_NOTCH] ) {
+      
+      /**************************************************************************
+      Looks like the flaps are currently more extended than we want, so RETRACT them
+      **************************************************************************/
+      
       analogWrite (EXTEND_PWM_PIN, 0);
       analogWrite (RETRACT_PWM_PIN, ACTUATOR_SPEED);
+
     } else {
 
+      // otherwise, stop motion
       analogWrite (RETRACT_PWM_PIN, 0);
       analogWrite (EXTEND_PWM_PIN, 0);
       MOTION_DIRECTION = DIRECTION_STOP;
-      Serial.println("MOTION_DIRECTION: DIRECTION_STOP (if statement ln 152)");
-
-      CURRENT_NOTCH = getCurrentNotch();
+      delay(100); // wait just a moment before proceeding
+      
     }
   } else if (MOTION_DIRECTION == DIRECTION_EXTEND) {
 
     /**************************************************************************
-    Looks like we want to EXTEND the flaps
+    Looks like the flaps are more retracted than we want, so EXTEND them
     ***************************************************************************/
 
     Serial.println("MOTION_DIRECTION: DIRECTION_EXTEND");
 
-    if (ANGLES[TARGET_NOTCH] <= getCurrentSensorReading()) {
+    if (getCurrentSensorReading() <= ANGLES[TARGET_NOTCH] ) {
+
       analogWrite (RETRACT_PWM_PIN, 0);
       analogWrite (EXTEND_PWM_PIN, ACTUATOR_SPEED);
+
     } else {
       
       analogWrite (EXTEND_PWM_PIN, 0);
       analogWrite (RETRACT_PWM_PIN, 0);
       MOTION_DIRECTION = DIRECTION_STOP;
-      Serial.println("MOTION_DIRECTION: DIRECTION_STOP (if statement ln 167)");
-      
-      CURRENT_NOTCH = getCurrentNotch();
+      delay(100); // wait a moment before proceeding
+
     }
   } else {
 
@@ -315,39 +390,28 @@ void loop() {
 
   }
 
-  // if (digitalRead(RETRACT_BUTTON) == LOW) {
-  //   Serial.println("Retract Button Pressed");
-  //   // analogWrite(RETRACT_PWM_PIN, ACTUATOR_SPEED);
-  //   retractFlapsOneNotch();
-  // } else if (digitalRead(EXTEND_BUTTON) == LOW) {
-  //   Serial.println("Extend Button Pressed");   
-  //   // analogWrite(EXTEND_PWM_PIN, ACTUATOR_SPEED);
-  //   extendFlapsOneNotch();
-  // } else {
-  //   analogWrite(RETRACT_PWM_PIN, 0);
-  //   analogWrite(EXTEND_PWM_PIN, 0);
-  // }
-  
-  // int SensorReading = getTestAngleData();
-  
-  
-  // int SensorReading = getCurrentSensorReading(); // map( analogRead(A2), FULL_RETRACT_VALUE, FULL_EXTEND_VALUE, ANGLES[0], ANGLES[NOTCH_COUNT - 1] );
-  // drawNewAngle(SensorReading);
-  
+  // CURRENT_NOTCH = getCurrentNotch();
+
   /**************************************************************************
   Now, let's update the screen by drawing a little line to indicate where the flaps
-  are currently extended to. 
+  are currently extended to. We do this using a function called drawNewAngle()
   ***************************************************************************/
   drawNewAngle();
   
-  // Serial.print("loop() sensorReading: ");Serial.println(SensorReading, DEC);
-  // delay(500); 
-  
 }
 
+
+
+/**************************************************************************
+Below is a list of functions that are used in the code above.
+**************************************************************************/
+
+
 /*
-This function is called in the setup() loop. It will draw the lines on the right
-side of the screen to denote "notches" of flaps. They remain stationary
+This function is called only in the setup() loop. It will draw the lines on the right
+half of the screen to denote "notches" of flaps. The number of lines drawn depends on 
+how many notches are defined in the ANGLES[] array. The lines remain stationary and are 
+used as a reference for the moving line (thus, reference lines)
 */
 void drawReferenceLines() {
   int numberOfNotches = sizeof(ANGLES) / sizeof(ANGLES[0]);
@@ -406,11 +470,12 @@ void drawReferenceValues() {
 }
 
 /*
-This is the function that writes each individual angle value - called from the function
-above - once for each element in the ANGLES[] array
+This is the function that writes each individual angle value (e.g. a number) - called 
+from the function above - once for each element in the ANGLES[] array
 */
 void drawReferenceValue(int angle, int notchNumber, int distance) {
-  int yPosition = notchNumber * distance + TITLE_MARGIN;
+  // int yPosition = notchNumber * distance + TITLE_MARGIN;
+  int yPosition = getYPosition(angle);
   
   char textValues[3];
 
@@ -438,9 +503,11 @@ this function will remove any old lines depicting the current flap angle and
 draw a new line where it needs to be
 */
 void drawNewAngle() {
+
   int angle = getCurrentSensorReading();
-  int yPosition = map(angle, ANGLES[0], ANGLES[NOTCH_COUNT - 1], TITLE_HEIGHT, SCREEN_WIDTH);
-  yPosition = (yPosition / 2) * 2;
+  int yPosition = getYPosition(angle); //map(angle, ANGLES[0], ANGLES[NOTCH_COUNT - 1], TITLE_HEIGHT, SCREEN_WIDTH);
+  yPosition = (yPosition / 2) * 2; // rounds the position to the nearest 2 - keeps it from jumping around too much
+  
   display.fillRect(0, TITLE_HEIGHT, 22, SCREEN_WIDTH, SSD1306_BLACK); 
   display.fillRect(2, yPosition + TITLE_MARGIN - 1, 18, 5, SSD1306_WHITE);
   display.display();
@@ -493,7 +560,8 @@ function, we can interpolate between fully retracted and fully extended values a
 what those values are based on values in the ANGLES[] array. 
 */
 int getCurrentSensorReading() {
-  return map( analogRead(A2), FULL_RETRACT_VALUE, FULL_EXTEND_VALUE, ANGLES[0], ANGLES[NOTCH_COUNT - 1] );
+  int sensorReading = analogRead(A2);
+  return map( sensorReading, FULL_RETRACT_VALUE, FULL_EXTEND_VALUE, ANGLES[0], ANGLES[NOTCH_COUNT - 1] );
 }
 
 /*
@@ -512,75 +580,6 @@ int getCurrentNotch() {
   return currentNotch;
 }
 
-
-// void retractFlapsOneNotch() {
-
-//   int SensorReading = getCurrentSensorReading();
-//   if (CURRENT_NOTCH > 0) {
-//     while (ANGLES[CURRENT_NOTCH - 1] <= SensorReading) {
-//       SensorReading = getCurrentSensorReading();
-//       if (digitalRead(EXTEND_BUTTON) == LOW) {
-//         analogWrite(RETRACT_PWM_PIN, 0);
-//         analogWrite(EXTEND_PWM_PIN, 0);
-//         delay(200);
-//         break;
-//       } else {
-//         analogWrite(RETRACT_PWM_PIN, ACTUATOR_SPEED);
-//         //drawNewAngle(SensorReading);
-//         drawNewAngle();
-//       }
-//     }
-//     CURRENT_NOTCH = CURRENT_NOTCH -1;
-//   } else {
-//     // need to retract to 0 in case partial travel has been done without increasing the current notch
-//     if (getCurrentSensorReading() >= ANGLES[0]){
-//       while (getCurrentSensorReading() >= ANGLES[0] ){
-//         analogWrite(RETRACT_PWM_PIN, ACTUATOR_SPEED);
-//         // drawNewAngle(SensorReading);
-//         drawNewAngle();
-//         // delay(100);
-//       }
-//     }
-//   }
-  
-// }
-
-// void extendFlapsOneNotch() {
-  
-//   int SensorReading = getCurrentSensorReading();
-//   if (CURRENT_NOTCH < NOTCH_COUNT - 1) {
-//     while (ANGLES[CURRENT_NOTCH + 1] >= SensorReading) {
-//       SensorReading = getCurrentSensorReading();
-//       if (digitalRead(RETRACT_BUTTON) == LOW) {
-//         analogWrite(RETRACT_PWM_PIN, 0);
-//         analogWrite(EXTEND_PWM_PIN, 0);
-//         delay(200);
-//         break;
-//       } else {
-//         analogWrite(EXTEND_PWM_PIN, ACTUATOR_SPEED);
-//         // drawNewAngle(SensorReading);
-//         drawNewAngle();
-//       }
-      
-//     }
-//     CURRENT_NOTCH = CURRENT_NOTCH + 1;
-//   } else {
-//     if (getCurrentSensorReading() <= ANGLES[NOTCH_COUNT - 1]){
-//       while (getCurrentSensorReading() <= ANGLES[NOTCH_COUNT - 1] ){
-//         analogWrite(EXTEND_PWM_PIN, ACTUATOR_SPEED);
-//         // drawNewAngle(SensorReading);
-//         drawNewAngle();
-//         // delay(100);
-//       }
-//     }
-//   }
-// }
-
-// void stopFlapMotion() {
-//   analogWrite(RETRACT_PWM_PIN, 0);
-//   analogWrite(EXTEND_PWM_PIN, 0);
-
-// }
 
 /*
 returns the current notch - 1
