@@ -2496,6 +2496,16 @@
 	)
 	(wire
 		(pts
+			(xy 82.55 154.94) (xy 82.55 173.99)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "34713d5d-233d-4588-b504-0f951c31686a")
+	)
+	(wire
+		(pts
 			(xy 134.62 130.81) (xy 163.83 130.81)
 		)
 		(stroke
@@ -2563,6 +2573,26 @@
 			(type default)
 		)
 		(uuid "4791f6d7-98e7-4675-8382-6e1cf8c80728")
+	)
+	(wire
+		(pts
+			(xy 87.63 154.94) (xy 87.63 173.99)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "48ab6bd1-ba14-46f2-8764-2f42e5067607")
+	)
+	(wire
+		(pts
+			(xy 80.01 154.94) (xy 80.01 173.99)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "49befeb1-439b-446c-9e35-c54402377f37")
 	)
 	(wire
 		(pts
@@ -2863,6 +2893,16 @@
 			(type default)
 		)
 		(uuid "a1efe574-cbff-4a30-9a2a-c61d59c47544")
+	)
+	(wire
+		(pts
+			(xy 85.09 154.94) (xy 85.09 173.99)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a5ae21ea-bf18-4ae5-bfcb-7060636c48ae")
 	)
 	(wire
 		(pts
@@ -3273,6 +3313,160 @@
 			(project ""
 				(path "/98bf385f-4cd5-4c0c-bda4-6735edf00281"
 					(reference "TH1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:Conn_01x06_Pin")
+		(at 85.09 160.02 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "23394aac-9f75-4834-9642-8bdcecf85e83")
+		(property "Reference" "J10"
+			(at 86.36 162.56 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Conn_01x06_Pin"
+			(at 86.36 165.1 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical"
+			(at 85.09 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 85.09 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic connector, single row, 01x06, script generated"
+			(at 85.09 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "4"
+			(uuid "efeb5233-8a29-4291-9a2d-031182f40f98")
+		)
+		(pin "5"
+			(uuid "174d849f-da21-4aae-b8e8-bec60eb2aac1")
+		)
+		(pin "2"
+			(uuid "24388173-41c0-4e37-a43e-6f2e8bf599b8")
+		)
+		(pin "6"
+			(uuid "b00feb38-5110-481f-8f3f-b0bc5e17a2f8")
+		)
+		(pin "1"
+			(uuid "86557524-bd7c-4cfe-8213-d3a239d4400b")
+		)
+		(pin "3"
+			(uuid "f2e6c5f5-18c2-470e-8464-c225074fd170")
+		)
+		(instances
+			(project "ArduinoBoard"
+				(path "/98bf385f-4cd5-4c0c-bda4-6735edf00281"
+					(reference "J10")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:Conn_01x04_Pin")
+		(at 82.55 179.07 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "29572614-8b50-4337-86a1-4c14c1dcbb39")
+		(property "Reference" "J9"
+			(at 83.82 181.61 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Conn_01x04_Pin"
+			(at 83.82 184.15 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical"
+			(at 82.55 179.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 82.55 179.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic connector, single row, 01x04, script generated"
+			(at 82.55 179.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "fa5298e2-e7ed-4693-9c6b-9dd663a7b9eb")
+		)
+		(pin "4"
+			(uuid "01010883-1a94-4fe0-b4e1-46d0e59a141d")
+		)
+		(pin "3"
+			(uuid "17c8c3fa-e3ce-46a9-b3ef-7c9537fb9d3e")
+		)
+		(pin "1"
+			(uuid "f67fd4fa-ba0e-49fc-b7a8-a6409eb3ef7d")
+		)
+		(instances
+			(project "ArduinoBoard"
+				(path "/98bf385f-4cd5-4c0c-bda4-6735edf00281"
+					(reference "J9")
 					(unit 1)
 				)
 			)
