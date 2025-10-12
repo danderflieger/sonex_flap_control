@@ -1,6 +1,6 @@
 {
   "board": {
-    "active_layer": 11,
+    "active_layer": 39,
     "active_layer_preset": "",
     "auto_track_width": true,
     "hidden_netclasses": [],
@@ -50,7 +50,7 @@
       "conflict_shadows",
       "shapes"
     ],
-    "visible_layers": "ffffffff_ffffffff_ffffd575_555555f5",
+    "visible_layers": "ffffffff_ffffffff_ffffd5f5_575555d4",
     "zone_display_mode": 0
   },
   "git": {
@@ -97,7 +97,7 @@
       10,
       10,
       10,
-      51
+      1788
     ],
     "custom_group_rules": [],
     "expanded_rows": [],
@@ -109,7 +109,7 @@
     "show_unconnected_nets": false,
     "show_zero_pad_nets": false,
     "sort_ascending": true,
-    "sorting_column": 0
+    "sorting_column": 9
   },
   "open_jobsets": [],
   "project": {

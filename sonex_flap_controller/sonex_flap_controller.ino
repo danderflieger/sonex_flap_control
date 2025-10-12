@@ -52,7 +52,7 @@ think it's necessary. If you wanted to add a notch for 20 deg, it would look
 like this:
 int ANGLES[] = { 0, 10, 20, 30 };
 ***************************************************************************/ 
-int ANGLES[] = { 0, 10, 30 };
+int ANGLES[] = { 0, 15, 30 };
 
 
 // This defines the number of notches for later use
@@ -125,6 +125,10 @@ lower than full speed (because the Sonex flap actuator isn't super fast), so 255
 #define EXTEND_PWM_PIN 11
 #define ACTUATOR_SPEED 255
 
+
+// Decide whether or not to output serial data
+bool SERIAL_OUTPUT = false;
+
 // run the setup() function. This section runs one time only, when the Arduino is powered on
 void setup() {
   // set up serial output
@@ -150,7 +154,7 @@ void setup() {
    do so. :)
   */ 
   if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
-    Serial.println(F("SSD1306 allocation failed"));
+    if (SERIAL_OUTPUT) { Serial.println(F("SSD1306 allocation failed")); }
   }
   display.clearDisplay();
   display.setRotation(1);
@@ -175,7 +179,7 @@ void setup() {
   // to see if the flaps are set at a particular notch using the SensorReading we just grabbed
   CURRENT_NOTCH = getCurrentNotch();
 
-  Serial.print("Beginning CURRENT_NOTCH:");Serial.println(CURRENT_NOTCH);
+  if (SERIAL_OUTPUT) { Serial.print("Beginning CURRENT_NOTCH:");Serial.println(CURRENT_NOTCH); }
 
 }
 
@@ -214,7 +218,7 @@ void loop() {
   the switch is in the middle position)
   *****************************************************************************/
   if (digitalRead(RETRACT_BUTTON) == LOW) {
-    Serial.println("RETRACT Button pressed ...");
+    if (SERIAL_OUTPUT) { Serial.println("RETRACT Button pressed ..."); }
     
     /*****************************************************************************
     If the RETRACT_BUTTON is pressed, first check to see if the extend command was
@@ -235,7 +239,7 @@ void loop() {
       *****************************************************************************/ 
 
       MOTION_DIRECTION = DIRECTION_STOP;
-      delay(100); 
+      delay(200); 
 
     } else {
       /*****************************************************************************
@@ -259,7 +263,7 @@ void loop() {
         TARGET_NOTCH = getPreviousNotch();
 
       }
-      delay(100); // is this necessary? Probably not
+      delay(200); // is this necessary? Probably not
     }
   } else if (digitalRead(EXTEND_BUTTON) == LOW) {
 
@@ -269,11 +273,11 @@ void loop() {
     continue to extend to the next notch. 
     ****************************************************************************/
     
-    Serial.println("EXTEND Button pressed ...");
+    if (SERIAL_OUTPUT) { Serial.println("EXTEND Button pressed ..."); }
     if (MOTION_DIRECTION == DIRECTION_RETRACT) {
     
       MOTION_DIRECTION = DIRECTION_STOP;
-      delay(100); // Is this necessary? probably not
+      delay(200); // Is this necessary? probably not
     
     } else {
     
@@ -281,7 +285,7 @@ void loop() {
       if (getCurrentSensorReading() <= ANGLES[getNextNotch()]) {
         TARGET_NOTCH = getNextNotch();
       }
-      delay(100); // Is this necessary? probably not
+      delay(200); // Is this necessary? probably not
     
     }
   }
@@ -297,7 +301,7 @@ void loop() {
   
   if (MOTION_DIRECTION == DIRECTION_RETRACT) {
 
-    // Serial.println("MOTION_DIRECTION: DIRECTION_RETRACT");    
+    // if (SERIAL_OUTPUT) { Serial.println("MOTION_DIRECTION: DIRECTION_RETRACT"); }
     
     /****************************************************************************
     Start/continue retracting if that's what the pilot wants to do. 
@@ -365,7 +369,7 @@ void loop() {
     Looks like the flaps are more retracted than we want, so EXTEND them
     ***************************************************************************/
 
-    // Serial.println("MOTION_DIRECTION: DIRECTION_EXTEND");
+    // if (SERIAL_OUTPUT) { Serial.println("MOTION_DIRECTION: DIRECTION_EXTEND"); }
 
     if (getCurrentSensorReading() <= ANGLES[TARGET_NOTCH] ) {
 
@@ -400,11 +404,13 @@ void loop() {
   ***************************************************************************/
   drawNewAngle();
   
-  Serial.print("CURRENT_NOTCH:");Serial.print(CURRENT_NOTCH);
-  Serial.print(" | TARGET_NOTCH:");Serial.print(TARGET_NOTCH);
-  Serial.print(" | ANGLES[TARGET_NOTCH]:");Serial.println(ANGLES[TARGET_NOTCH]);
-  Serial.print("cur angle:");Serial.print(getCurrentSensorReading()); Serial.print(" | target angle: "); Serial.println(ANGLES[TARGET_NOTCH]);
-  delay(100);
+  if (SERIAL_OUTPUT) { 
+    Serial.print("CURRENT_NOTCH:");Serial.print(CURRENT_NOTCH);
+    Serial.print(" | TARGET_NOTCH:");Serial.print(TARGET_NOTCH);
+    Serial.print(" | ANGLES[TARGET_NOTCH]:");Serial.println(ANGLES[TARGET_NOTCH]);
+    Serial.print("cur angle:");Serial.print(getCurrentSensorReading()); Serial.print(" | target angle: "); Serial.println(ANGLES[TARGET_NOTCH]);
+    delay(100);
+  }
 }
 
 
@@ -426,11 +432,11 @@ void drawReferenceLines() {
 
   // iterate through the defined notch settings
   for (int i = 0; i < numberOfNotches; i++) {
-    Serial.print(ANGLES[i]); Serial.print(":");
+    if (SERIAL_OUTPUT) { Serial.print(ANGLES[i]); Serial.print(":"); }
     // drawReferenceLine(ANGLES[i], i, screenDistanceBetweenNotches);
     drawReferenceLine(ANGLES[i], i);
   }
-  Serial.println();
+  if (SERIAL_OUTPUT) { Serial.println(); }
 }
 
 /*
@@ -505,7 +511,7 @@ void drawReferenceValue(int angle, int notchNumber) {
   display.write(textValues);
   display.display();
 
-  Serial.println(angle);
+  if (SERIAL_OUTPUT) { Serial.println(angle); }
 
 }
 
