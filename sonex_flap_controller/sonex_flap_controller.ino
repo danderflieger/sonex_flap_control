@@ -47,6 +47,7 @@ necessary.
 #define FULL_RETRACT_VALUE  5
 #define FULL_EXTEND_VALUE   881
 
+
 /**************************************************************************
  Decide whether or not to output serial data and/or calibration data over
  the serial port (e.g. through the Arduino IDE's Serial Monitor). The 
@@ -84,10 +85,14 @@ necessary.
 
 /*************************************************************************
   This value can be adjusted to allow the actuator to stop slightly before
-  it reaches a specific notch. 
+  it reaches a specific notch. It helps to ensure the actuator doesn't 
+  go past the target as it slows - e.g., the Arduino will tell the 
+  actuator to stop moving slightly before it reaches the target setting.
+  Increase this number to stop it sooner. Decrease it to stop it later. 
+  Note that this number MUST be positive - negative numbers don't work 
+  properly.
 *************************************************************************/
-#define TARGET_TOLERANCE 10
-
+#define TARGET_TOLERANCE 5
 
 
 /**************************************************************************
@@ -99,32 +104,41 @@ Ideally you will do some testing to figure out what angles your flaps actually
 sit at for each notch. The first and last element in this array should be 0 and 
 whatever full flaps are deflected to. Sonex says full flaps on the B model is 
 30 deg. Because they suggest 0 for clean, 10 for takeoff, and 30 for landing, 
-that's what I've put here. Feel free to add additional "notches" in there if 
-you think it's necessary. If you wanted to add a notch for 20 deg, it would 
-look like this:
+that's what I've put here:
+
+int ANGLES[] = { 0, 10, 30 };
+
+Feel free to add additional "notches" in there if you think it's necessary. 
+If you wanted to add a notch for 20 deg (for example), it would look like this:
 
 int ANGLES[] = { 0, 10, 20, 30 };
 ***************************************************************************/ 
 int ANGLES[] = { 0, 10, 30 };
 
 
-// This defines the number of notches for later use
+/**************************************************************************
+ This figures out the number of notches for later use - nothing to change 
+ here. It will figure out how many notches you defined based on the ANGLES[] 
+ values you entered above. 
+**************************************************************************/
 #define NOTCH_COUNT sizeof(ANGLES) / sizeof(ANGLES[0])
 
+
 /**************************************************************************
-Declare another array with similar values. The difference here is that this
-array will hold actual sensor readings, not angles. Because there will be
-more sensor readings (e.g. 0-1023 instead of 0-30 degrees), we can start 
-and stop the actuator with better precision. I had an issue where I would 
-target, say, 20 degrees of flap, but the actuator would "coast" to 21 or
-22 degrees before it stopped. And when retracting, it would go to 19 or 18
-degrees before stopping. This is meant to fix that by triggering it to stop
-fractionally sooner. 
+  Declare another array with similar values. The difference here is that this
+  array will hold actual sensor readings, not angles. Because sensor readings 
+  have a larger range (e.g. 0-1023 instead of 0-30 degrees), we can start 
+  and stop the actuator with better precision. I had an issue where I would 
+  target, say, 20 degrees of flap, but the actuator would "coast" to 21 or
+  22 degrees before it stopped. And when retracting, it would go to 19 or 18
+  degrees before stopping. This is meant to fix that by triggering it to stop
+  fractionally sooner, but I needed better precision than what ANGLES can 
+  provide. 
 **************************************************************************/
 int SENSOR_READINGS[NOTCH_COUNT];
 
 /************************************************************************** 
-Declare and initialize a few variables that are used in the program
+Declare and initialize (to 0) a few variables that are used in the program
 ***************************************************************************/ 
 int           CURRENT_NOTCH         = 0;
 int           TARGET_NOTCH          = 0;
@@ -132,7 +146,10 @@ int           LAST_SENSOR_READING   = 0;
 unsigned long LAST_MOVEMENT_MILLIS  = 0;
 
 
-// a couple of pre-defined values that determine which way the flaps should move (or not)
+/***************************************************************************
+ a couple of pre-defined values (enums) that determine which way the flaps 
+ should move (or not)
+***************************************************************************/ 
 #define DIRECTION_RETRACT -1
 #define DIRECTION_STOP 0
 #define DIRECTION_EXTEND 1
@@ -355,8 +372,10 @@ void loop() {
         to the next more retracted notch (e.g. from notch 2 to notch 1).
       *****************************************************************************/ 
 
+      analogWrite (RETRACT_PWM_PIN, 0);
+      analogWrite (EXTEND_PWM_PIN, 0);
       MOTION_DIRECTION = DIRECTION_STOP;
-      delay(200); 
+      delay(MAX_IDLE_TIME); 
 
     } else {
 
@@ -368,7 +387,7 @@ void loop() {
 
       MOTION_DIRECTION = DIRECTION_RETRACT;
 
-      if (currentSensorReading >= SENSOR_READINGS[getPreviousNotch()]){
+      if (currentSensorReading >= SENSOR_READINGS[getPreviousNotch()] + TARGET_TOLERANCE){
 
         /*****************************************************************************
           the TARGET_NOTCH variable will be used to determine if the flaps have reached
@@ -391,8 +410,10 @@ void loop() {
     
     if (MOTION_DIRECTION == DIRECTION_RETRACT) {
     
+      analogWrite (RETRACT_PWM_PIN, 0);
+      analogWrite (EXTEND_PWM_PIN, 0);
       MOTION_DIRECTION = DIRECTION_STOP;
-      delay(200);
+      delay(MAX_IDLE_TIME);
     
     } else {
     
@@ -465,7 +486,7 @@ void loop() {
       OK, all that out of the way, let's tell the flaps to move or stop in the correct direction:
     ****************************************************************************/
     
-    if (currentSensorReading  >= SENSOR_READINGS[TARGET_NOTCH] ) {
+    if (currentSensorReading >= SENSOR_READINGS[TARGET_NOTCH]  + TARGET_TOLERANCE) {
       
       /**************************************************************************
         Looks like the flaps are currently more extended than we want, so RETRACT 
@@ -507,7 +528,6 @@ void loop() {
       analogWrite (EXTEND_PWM_PIN, 0);
       analogWrite (RETRACT_PWM_PIN, 0);
       MOTION_DIRECTION = DIRECTION_STOP;
-      // delay(100); // wait a moment before proceeding
 
     }
   } else {
@@ -536,15 +556,20 @@ void loop() {
     and/or CALIBRATION_OUTPUT values set to true - otherwise don't output
   ***************************************************************************/
   if (SERIAL_OUTPUT) { 
+
     Serial.print("CURRENT_NOTCH:");Serial.print(CURRENT_NOTCH);
     Serial.print(" | TARGET_NOTCH:");Serial.print(TARGET_NOTCH);
     Serial.print(" | ANGLES[TARGET_NOTCH]:");Serial.println(ANGLES[TARGET_NOTCH]);
     Serial.print("currentSensorReading:");Serial.print(currentSensorReading); Serial.print(" | target angle: "); Serial.println(ANGLES[TARGET_NOTCH]);
-    delay(100);
+
   }
+
   if (CALIBRATION_OUTPUT) {
+  
     Serial.print("Sensor Reading:");Serial.println(analogRead(A2));
+  
   }
+
 
   /**************************************************************************
     Grab the current sensor reading to see actuator's position
@@ -557,22 +582,36 @@ void loop() {
     threshold - if so, stop all PWM signals
   **************************************************************************/ 
   if (currentSensorReading != LAST_SENSOR_READING) {
-    
+
+    /**************************************************************************
+      It looks like the sensor has moved since the last time we checked, so
+      reset the clock and change the LAST_SENSOR_READING to the current one
+      in preparation for this same check to be done the next time around
+    **************************************************************************/
     LAST_MOVEMENT_MILLIS = millis();
-    if (SERIAL_OUTPUT) { Serial.println ("In motion");}
     LAST_SENSOR_READING = currentSensorReading;
+    if (SERIAL_OUTPUT) { Serial.println ("In motion");}
     
   } else {
 
+    /**************************************************************************
+      The current and last sensor readings are the same - so check to see if 
+      they've been the same for the MAX_IDLE_TIME.
+    **************************************************************************/
     if (currentMillis - LAST_MOVEMENT_MILLIS > MAX_IDLE_TIME) {
-      LAST_MOVEMENT_MILLIS = currentMillis;
-        
-      if (SERIAL_OUTPUT) { Serial.println("Time out reached ..."); }
+      
+      /**************************************************************************
+        The MAX_IDLE_TIME threshold has been reached, so stop trying to move
+        the actuator and set the MOTION_DIRECTION variable to 0 (DIRECTION_STOP)
+      **************************************************************************/  
       
       analogWrite (RETRACT_PWM_PIN, 0);
       analogWrite (EXTEND_PWM_PIN, 0);
       MOTION_DIRECTION = DIRECTION_STOP;
-      
+
+      LAST_MOVEMENT_MILLIS = currentMillis;
+      if (SERIAL_OUTPUT) { Serial.println("Time out reached ..."); }
+
     } 
 
   }
@@ -848,13 +887,13 @@ int getPreviousNotch() {
     **************************************************************************/
     previousNotch = 0;
 
-  }  else if (currentSensorReading >= SENSOR_READINGS[NOTCH_COUNT - 1] - TARGET_TOLERANCE) {
+  }  else if (currentSensorReading >= SENSOR_READINGS[NOTCH_COUNT - 1]) {
 
     /**************************************************************************
      Handle cases where the sensorAngle is greater than or equal to the last 
-     element ... if so, use the highest notch 
+     element ... if so, use the highest notch, minus 1
     **************************************************************************/
-    currentNotch = NOTCH_COUNT - 1; 
+    previousNotch = (NOTCH_COUNT - 1) - 1; 
 
   } else {
 
@@ -862,14 +901,17 @@ int getPreviousNotch() {
       Looks like were within bounds, so iterate through the various notches to
       find the PREVIOUS one
     **************************************************************************/
-    for (int i = NOTCH_COUNT - 1; i > 0; i--) {
+    for (int i = NOTCH_COUNT - 1; i >= 0; i--) {
       
-      if (currentSensorReading <= SENSOR_READINGS[i] && currentSensorReading >= SENSOR_READINGS[i-1] - TARGET_TOLERANCE) {
+      // if (currentSensorReading  <= SENSOR_READINGS[i] && currentSensorReading >= SENSOR_READINGS[i-1]) {
+      if (currentSensorReading >= SENSOR_READINGS[i-1] + TARGET_TOLERANCE) {
         previousNotch = i - 1;
+
         break; // we found what we're looking for and can exit the loop
       }
 
     }
+
   }
   
   return previousNotch;
@@ -907,7 +949,8 @@ int getNextNotch() {
     **************************************************************************/
     for (int i = 0; i < NOTCH_COUNT; i++) {
       
-      if (currentSensorReading >= SENSOR_READINGS[i] - TARGET_TOLERANCE && currentSensorReading < SENSOR_READINGS[i+1]) {
+      // if (currentSensorReading >= SENSOR_READINGS[i] - TARGET_TOLERANCE && currentSensorReading < SENSOR_READINGS[i+1]) {
+      if ( currentSensorReading <= SENSOR_READINGS[i+1] - TARGET_TOLERANCE) {
         nextNotch = i + 1;
         break; // we found what we're looking for and can exit the loop
       }
