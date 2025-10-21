@@ -13480,6 +13480,44 @@
 	(dimension
 		(type orthogonal)
 		(layer "User.1")
+		(uuid "373a0a98-2619-4bc5-bdbc-ef0ddff3d097")
+		(pts
+			(xy 120.17 81.76) (xy 120.17 147.76)
+		)
+		(height 8.11)
+		(orientation 1)
+		(format
+			(prefix "")
+			(suffix "")
+			(units 3)
+			(units_format 0)
+			(precision 4)
+			(suppress_zeroes yes)
+		)
+		(style
+			(thickness 0.1)
+			(arrow_length 1.27)
+			(text_position_mode 0)
+			(arrow_direction outward)
+			(extension_height 0.58642)
+			(extension_offset 0.5)
+			(keep_text_aligned yes)
+		)
+		(gr_text "66"
+			(at 127.13 114.76 90)
+			(layer "User.1")
+			(uuid "373a0a98-2619-4bc5-bdbc-ef0ddff3d097")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+	)
+	(dimension
+		(type orthogonal)
+		(layer "User.1")
 		(uuid "3dd36281-44fe-46d8-98bf-160072bc5524")
 		(pts
 			(xy 69.249998 97.749788) (xy 32.85 97.749789)
@@ -13659,6 +13697,120 @@
 			(at 161.9 98.8 90)
 			(layer "User.1")
 			(uuid "4c5b27c9-6b6c-4d4a-898a-15c4b01ccd40")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+	)
+	(dimension
+		(type orthogonal)
+		(layer "User.1")
+		(uuid "50311e35-4b64-4aa5-bdeb-469003ea9e11")
+		(pts
+			(xy 32.85 97.749792) (xy 32.85 149.749792)
+		)
+		(height -10.89)
+		(orientation 1)
+		(format
+			(prefix "")
+			(suffix "")
+			(units 3)
+			(units_format 0)
+			(precision 4)
+			(suppress_zeroes yes)
+		)
+		(style
+			(thickness 0.1)
+			(arrow_length 1.27)
+			(text_position_mode 0)
+			(arrow_direction outward)
+			(extension_height 0.58642)
+			(extension_offset 0.5)
+			(keep_text_aligned yes)
+		)
+		(gr_text "52"
+			(at 20.81 123.749792 90)
+			(layer "User.1")
+			(uuid "50311e35-4b64-4aa5-bdeb-469003ea9e11")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+	)
+	(dimension
+		(type orthogonal)
+		(layer "User.1")
+		(uuid "58b5565b-dd59-4a9b-a47c-d529023fffce")
+		(pts
+			(xy 120.17 147.76) (xy 122.17 149.76)
+		)
+		(height 4.55)
+		(orientation 1)
+		(format
+			(prefix "")
+			(suffix "")
+			(units 3)
+			(units_format 0)
+			(precision 4)
+			(suppress_zeroes yes)
+		)
+		(style
+			(thickness 0.1)
+			(arrow_length 1.27)
+			(text_position_mode 2)
+			(arrow_direction outward)
+			(extension_height 0.58642)
+			(extension_offset 0.5)
+			(keep_text_aligned yes)
+		)
+		(gr_text "2"
+			(at 124.72 150.9 90)
+			(layer "User.1")
+			(uuid "58b5565b-dd59-4a9b-a47c-d529023fffce")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+	)
+	(dimension
+		(type orthogonal)
+		(layer "User.1")
+		(uuid "641f6607-1f23-47db-9ea7-13ebec61f92f")
+		(pts
+			(xy 46.829293 127.129085) (xy 47.2 142)
+		)
+		(height -2.049293)
+		(orientation 1)
+		(format
+			(prefix "")
+			(suffix "")
+			(units 3)
+			(units_format 0)
+			(precision 4)
+			(suppress_zeroes yes)
+		)
+		(style
+			(thickness 0.1)
+			(arrow_length 1.27)
+			(text_position_mode 0)
+			(arrow_direction outward)
+			(extension_height 0.58642)
+			(extension_offset 0.5)
+			(keep_text_aligned yes)
+		)
+		(gr_text "14.8709"
+			(at 43.63 134.564543 90)
+			(layer "User.1")
+			(uuid "641f6607-1f23-47db-9ea7-13ebec61f92f")
 			(effects
 				(font
 					(size 1 1)
@@ -14002,6 +14154,44 @@
 			(at 199.7 80.8 90)
 			(layer "User.1")
 			(uuid "c2691409-b186-4d4e-a87c-4f2f9587d6b3")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+	)
+	(dimension
+		(type orthogonal)
+		(layer "User.1")
+		(uuid "d354b328-623f-4633-bd0e-6954c017ab8f")
+		(pts
+			(xy 120.17 81.76) (xy 122.17 79.76)
+		)
+		(height 3.48)
+		(orientation 1)
+		(format
+			(prefix "")
+			(suffix "")
+			(units 3)
+			(units_format 0)
+			(precision 4)
+			(suppress_zeroes yes)
+		)
+		(style
+			(thickness 0.1)
+			(arrow_length 1.27)
+			(text_position_mode 2)
+			(arrow_direction outward)
+			(extension_height 0.58642)
+			(extension_offset 0.5)
+			(keep_text_aligned yes)
+		)
+		(gr_text "2"
+			(at 123.57 78.85 90)
+			(layer "User.1")
+			(uuid "d354b328-623f-4633-bd0e-6954c017ab8f")
 			(effects
 				(font
 					(size 1 1)
