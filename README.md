@@ -1,5 +1,5 @@
 # Sonex Flap Control
-This is an experimental ameteur built (EAB) electronic project that was designed for flap movement and tracking project in my Sonex B model aircraft kit. It uses an Arduino Nano in conjunction with an BTS7960/IBT_2 H-type motor driver to move the Sonex-supplied Electric Flap Actuator (Sonex part SNB-C05-11) and displays current flap position on a small OLED screen. Feel free to use it for your own purposes AT YOUR OWN RISK. It is released under MIT open source agreement license (see the license agreement listed in the root of the project). 
+This is an experimental ameteur built (EAB) electronic project that was designed for flap movement and position tracking in my Sonex B model aircraft kit. It uses an Arduino Nano in conjunction with an BTS7960/IBT_2 H-type motor driver to move the Sonex-supplied Electric Flap Actuator (Sonex part SNB-C05-11) and displays current flap position on a small OLED screen. Feel free to use it for your own purposes AT YOUR OWN RISK. It is released under MIT open source agreement license (see the license agreement listed in the root of the project). 
 
 <img src='images/FrontView.jpg' width='310' />  <img src='images/ComponentView.jpg' height='250' />
 
