@@ -180,8 +180,9 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 /***************************************************************************
  define pin numbers for buttons
 ***************************************************************************/
-#define RETRACT_BUTTON  2
-#define EXTEND_BUTTON   3
+#define EXTEND_BUTTON   A2
+#define RETRACT_BUTTON  A3
+
 
 
 /***************************************************************************

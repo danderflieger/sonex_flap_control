@@ -38,8 +38,8 @@
         "other_text_upright": false,
         "pads": {
           "drill": 0.5,
-          "height": 1.6,
-          "width": 3.0
+          "height": 1.7,
+          "width": 2.5
         },
         "silk_line_width": 0.1,
         "silk_text_italic": false,
@@ -190,7 +190,8 @@
         0.0,
         0.6,
         0.7,
-        0.8
+        0.8,
+        1.0
       ],
       "tuning_pattern_settings": {
         "diff_pair_defaults": {
@@ -510,7 +511,7 @@
       "svg": "",
       "vrml": ""
     },
-    "page_layout_descr_file": ""
+    "page_layout_descr_file": "kicad-embed://PCB_Drawing_Sheet.kicad_wks"
   },
   "schematic": {
     "annotate_start_num": 0,
