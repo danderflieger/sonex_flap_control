@@ -25,7 +25,10 @@
 
 /**************************************************************************
   Include a few necessary libraries - the Adafruit ones need to be installed
-  into the Arduino IDE before this will compile.
+  into the Arduino IDE before this will compile. See the copyright info 
+  for the Adafruit libraries at the bottom of this file. Basically, just 
+  consider the time and money expended to write a freely available library
+  and think about buying their hardware (which is top-notch). 
 **************************************************************************/
 #include <SPI.h>
 #include <Wire.h>
@@ -34,12 +37,12 @@
 
 
 /**************************************************************************
-These two values represent the values recevied on the A2 pin of the Arduino,
-which is connected to the yellow wire of the position sensor of the flap
-actuator. To calibrate your actuator, set the CALIBRATION_OUTPUT to true
-and find the sensor reading that appears when  you retract/extend the flap 
-actuator to its limits in both directions. Use whatever value appears in
-the Serial Monitor to set the FULL_RETRACT_VALUE and FULL_EXTEND_VALUE 
+These two values represent the values recevied on the READING_PIN pin of the 
+Arduino, which is connected to the yellow wire of the position sensor of the 
+flap actuator. To calibrate your actuator, set the CALIBRATION_OUTPUT to 
+true and find the sensor reading that appears when  you retract/extend the 
+flap actuator to its limits in both directions. Use whatever value appears 
+in the Serial Monitor to set the FULL_RETRACT_VALUE and FULL_EXTEND_VALUE 
 settings here. Then turn off the CALIBRATION_OUTPUT by setting it to false.
 No need to continue to output values to the Serial port when it's not
 necessary. 
@@ -178,11 +181,11 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 
 /***************************************************************************
- define pin numbers for buttons
+ define pin numbers for reading and buttons
 ***************************************************************************/
-#define EXTEND_BUTTON   A2
-#define RETRACT_BUTTON  A3
-
+#define READING_PIN     A1
+#define RETRACT_BUTTON  A2
+#define EXTEND_BUTTON   A3
 
 
 /***************************************************************************
@@ -567,7 +570,7 @@ void loop() {
 
   if (CALIBRATION_OUTPUT) {
   
-    Serial.print("Sensor Reading:");Serial.println(analogRead(A2));
+    Serial.print("Sensor Reading:");Serial.println(analogRead(READING_PIN));
   
   }
 
@@ -787,8 +790,8 @@ int getYPosition(int angle) {
 }
 
 /**************************************************************************
-  reads the A2 pin on the Arduino (connected to the position output wire on
-  the actuator) to get a value from 0-1023. 
+  reads the READING_PIN (A0 by default) on the Arduino (connected to the 
+  position output wire on the actuator) to get a value from 0-1023. 
 
   The sensor wires on the Sonex actuator work like this:
   - +5V on the BLUE wire
@@ -796,14 +799,14 @@ int getYPosition(int angle) {
   - voltage output (between 0 and 5V on the YELLOW wire, depending on the 
     position of the actuator - 0 = fully retracted, 5V = fully extended)
 
-  The yellow wire is connected to the Analog 2 (A2) pin on the Arduino. 
+  The yellow wire is connected to the Analog 0 (A0) pin on the Arduino. 
   The Arduino converts that 0-5V voltage to a value between 0 and 1023, 
   respectively, on that pin. Using the map() function mentioned above, we
   can interpolate between fully retracted and fully extended values and
   output what those values are in comparison to values in the ANGLES[] array. 
 **************************************************************************/
 int getCurrentSensorReading() {
-  int sensorReading = analogRead(A2);
+  int sensorReading = analogRead(READING_PIN);
   return sensorReading;
 }
 
