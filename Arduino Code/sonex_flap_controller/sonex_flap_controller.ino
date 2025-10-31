@@ -47,8 +47,23 @@ settings here. Then turn off the CALIBRATION_OUTPUT by setting it to false.
 No need to continue to output values to the Serial port when it's not
 necessary. 
 **************************************************************************/
-#define FULL_RETRACT_VALUE  5
-#define FULL_EXTEND_VALUE   881
+#define FULL_RETRACT_VALUE  6
+#define FULL_EXTEND_VALUE   882
+
+/**************************************************************************
+When a sensor reading is taken, because it is an analog sensor, sometimes
+the number bounces around a little (usually between 1 & readings). For example
+the sensor is reading 300. It will likely bounce between 299 and 301. This 
+value is used to attempt to round down by this many. So if it bounces between 
+300 and 301, it will report 300. If you see a lot of bounce, you may need
+to increase this number to, say, 3 or 4. When you do, you may need to adjust
+the two numbers above to be divisible by whatever number you input here. 
+Setting this to a lower number (2 by default) will make your reading more
+accurate, but there's a higher chance your screen will flicker. Setting it
+to a higher number reduces the liklihood of flicker, but may be a little less
+accurate. 
+**************************************************************************/
+#define ANTI_FLICKER_VALUE 2
 
 
 /**************************************************************************
@@ -294,7 +309,7 @@ void setup() {
     to see if the flaps are set at a particular notch using the SensorReading we just grabbed
   **************************************************************************/
   CURRENT_NOTCH = getCurrentNotch();
-  if (SERIAL_OUTPUT) { Serial.print("Beginning CURRENT_NOTCH:");Serial.println(CURRENT_NOTCH); }
+  if (SERIAL_OUTPUT) { Serial.print("Beginning CURRENT_NOTCH:");Serial.println(CURRENT_NOTCH); delay(1000); }
 
 }
 
@@ -355,7 +370,7 @@ void loop() {
   *****************************************************************************/
   if (digitalRead(RETRACT_BUTTON) == LOW) {
 
-    if (SERIAL_OUTPUT) { Serial.println("RETRACT Button pressed ..."); }
+    if (SERIAL_OUTPUT) { Serial.print("Button: Retract "); }
     
     /*****************************************************************************
       If the RETRACT_BUTTON is pressed, first check to see if the extend command was
@@ -379,6 +394,7 @@ void loop() {
       analogWrite (RETRACT_PWM_PIN, 0);
       analogWrite (EXTEND_PWM_PIN, 0);
       MOTION_DIRECTION = DIRECTION_STOP;
+      if (SERIAL_OUTPUT) { Serial.print("\tLine 421 "); }
       delay(MAX_IDLE_TIME); 
 
     } else {
@@ -403,7 +419,7 @@ void loop() {
     }
   } else if (digitalRead(EXTEND_BUTTON) == LOW) {
 
-    if (SERIAL_OUTPUT) { Serial.println("EXTEND Button pressed ..."); }
+    if (SERIAL_OUTPUT) { Serial.print("Button: Extend "); }
 
     /****************************************************************************
       If the EXTEND_BUTTON is pressed, do the opposite of what was done if the 
@@ -428,6 +444,8 @@ void loop() {
       }
     
     }
+  } else {
+    if (SERIAL_OUTPUT) { Serial.print("Button: None "); }
   }
 
 
@@ -561,16 +579,16 @@ void loop() {
   ***************************************************************************/
   if (SERIAL_OUTPUT) { 
 
-    Serial.print("CURRENT_NOTCH:");Serial.print(CURRENT_NOTCH);
-    Serial.print(" | TARGET_NOTCH:");Serial.print(TARGET_NOTCH);
-    Serial.print(" | ANGLES[TARGET_NOTCH]:");Serial.println(ANGLES[TARGET_NOTCH]);
-    Serial.print("currentSensorReading:");Serial.print(currentSensorReading); Serial.print(" | target angle: "); Serial.println(ANGLES[TARGET_NOTCH]);
-
+    Serial.print(" CURRENT_NOTCH:");       Serial.print(CURRENT_NOTCH);
+    Serial.print(" TARGET_NOTCH:");        Serial.print(TARGET_NOTCH);
+    Serial.print(" ANGLES[TARGET_NOTCH]:");Serial.print(ANGLES[TARGET_NOTCH]);
+    Serial.print(" currentSensorReading:");Serial.print(currentSensorReading); 
+    Serial.print(" target angle:");        Serial.print(ANGLES[TARGET_NOTCH]);
   }
 
   if (CALIBRATION_OUTPUT) {
   
-    Serial.print("Sensor Reading:");Serial.println(analogRead(READING_PIN));
+    Serial.print(" Sensor Reading:");Serial.println(analogRead(READING_PIN));
   
   }
 
@@ -585,6 +603,7 @@ void loop() {
     therefore no longer  moving) for more than the allotted MAX_IDLE_TIME 
     threshold - if so, stop all PWM signals
   **************************************************************************/ 
+  if (SERIAL_OUTPUT) { Serial.print (" In motion:");}
   if (currentSensorReading != LAST_SENSOR_READING) {
 
     /**************************************************************************
@@ -594,9 +613,14 @@ void loop() {
     **************************************************************************/
     LAST_MOVEMENT_MILLIS = millis();
     LAST_SENSOR_READING = currentSensorReading;
-    if (SERIAL_OUTPUT) { Serial.println ("In motion");}
+    
+    // output that the actuator IS in motion 
+    if (SERIAL_OUTPUT) { Serial.print("true");}
     
   } else {
+    
+    // output that the actuator is NOT in motion 
+    if (SERIAL_OUTPUT) { Serial.print("false");}
 
     /**************************************************************************
       The current and last sensor readings are the same - so check to see if 
@@ -614,7 +638,7 @@ void loop() {
       MOTION_DIRECTION = DIRECTION_STOP;
 
       LAST_MOVEMENT_MILLIS = currentMillis;
-      if (SERIAL_OUTPUT) { Serial.println("Time out reached ..."); }
+      if (SERIAL_OUTPUT) { Serial.print("\n\n*** Time out reached ***\n\n"); }
 
     } 
 
@@ -626,22 +650,21 @@ void loop() {
   and/or CALIBRATION_OUTPUT values set to true - otherwise don't output
   ***************************************************************************/ 
   if (SERIAL_OUTPUT) { 
-    Serial.print(LAST_SENSOR_READING); Serial.print(":"); Serial.print(currentSensorReading);
-    Serial.print("\t"); 
-    Serial.print(LAST_MOVEMENT_MILLIS);Serial.print(":"); Serial.print(currentMillis);
-    Serial.print("\t");
-    Serial.print("TARGET_NOTCH:");Serial.print(TARGET_NOTCH); Serial.print("\tCURRENT_NOTCH:"); Serial.print(CURRENT_NOTCH);
-    Serial.print("\tSENSOR_READINGS:");
+    Serial.print(" LAST_SENSOR_READING:");  Serial.print(LAST_SENSOR_READING);  Serial.print(":"); Serial.print(currentSensorReading);
+    Serial.print(" LAST_MOVEMENT_MILLIS");  Serial.print(LAST_MOVEMENT_MILLIS); Serial.print(":"); Serial.print(currentMillis);
+    Serial.print(" TARGET_NOTCH:");         Serial.print(TARGET_NOTCH);         
+    Serial.print(" CURRENT_NOTCH:"); Serial.print(CURRENT_NOTCH);
+    Serial.print(" SENSOR_READINGS:");
     for (int i=0; i<NOTCH_COUNT; i++) {
       Serial.print(SENSOR_READINGS[i]);
       Serial.print(",");
     }
-    Serial.print("\tANGLES:");
+    Serial.print(" ANGLES:");
     for (int i=0; i<NOTCH_COUNT; i++) {
       Serial.print(ANGLES[i]);
-      Serial.print(",");
+      Serial.print(" ");
     }
-    Serial.println();
+    
   }
 
   /**************************************************************************
@@ -651,7 +674,7 @@ void loop() {
   ***************************************************************************/
   LAST_SENSOR_READING = currentSensorReading;
   
-  
+  Serial.println();
 }
 
 
@@ -807,6 +830,10 @@ int getYPosition(int angle) {
 **************************************************************************/
 int getCurrentSensorReading() {
   int sensorReading = analogRead(READING_PIN);
+
+  // round down to the nearest 2 to keep the screen from flickering
+  sensorReading = sensorReading - (sensorReading % ANTI_FLICKER_VALUE);
+  
   return sensorReading;
 }
 
