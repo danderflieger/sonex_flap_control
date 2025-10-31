@@ -48,22 +48,28 @@ No need to continue to output values to the Serial port when it's not
 necessary. 
 **************************************************************************/
 #define FULL_RETRACT_VALUE  6
-#define FULL_EXTEND_VALUE   882
+#define FULL_EXTEND_VALUE   880
+
 
 /**************************************************************************
 When a sensor reading is taken, because it is an analog sensor, sometimes
-the number bounces around a little (usually between 1 & readings). For example
-the sensor is reading 300. It will likely bounce between 299 and 301. This 
-value is used to attempt to round down by this many. So if it bounces between 
-300 and 301, it will report 300. If you see a lot of bounce, you may need
-to increase this number to, say, 3 or 4. When you do, you may need to adjust
-the two numbers above to be divisible by whatever number you input here. 
-Setting this to a lower number (2 by default) will make your reading more
-accurate, but there's a higher chance your screen will flicker. Setting it
-to a higher number reduces the liklihood of flicker, but may be a little less
-accurate. 
+the number bounces around a little. For example, say the sensor is reading 
+an average of 300. It will likely bounce between 299 and 301. Or maybe a 
+range of 297 and 303. The value below (ANTI_FLICKER_VALUE) is used to 
+attempt to round down by this many. So if it bounces between 300 and 301, 
+it should report 300. 
+
+If you see a lot of bounce, you may need to increase this number to, say, 
+3 or 4 (whatever the range of the bounce is). When you do, you may need 
+to adjust the two numbers above (FULL_RETRACT_VALUE and FULL_EXTEND_VALUE) 
+to be divisible by whatever number you input here. Setting this to a lower 
+number (2 by default) will make your reading more accurate, but there's a 
+higher chance the bar indicating the current position of your flasp will 
+"flicker" between two values. Setting it to a higher number reduces the 
+liklihood of flicker, but may be a little less accurate. So weigh the 
+importance of each when you set this up. 
 **************************************************************************/
-#define ANTI_FLICKER_VALUE 2
+#define ANTI_FLICKER_VALUE 4
 
 
 /**************************************************************************
@@ -84,7 +90,7 @@ accurate.
  FULL_EXTEND_VALUE should be set to. 
 **************************************************************************/
 #define SERIAL_OUTPUT       false
-#define CALIBRATION_OUTPUT  false
+#define CALIBRATION_OUTPUT  true
 
 
 /*************************************************************************
@@ -586,18 +592,23 @@ void loop() {
     Serial.print(" target angle:");        Serial.print(ANGLES[TARGET_NOTCH]);
   }
 
-  if (CALIBRATION_OUTPUT) {
-  
-    Serial.print(" Sensor Reading:");Serial.println(analogRead(READING_PIN));
-  
-  }
-
 
   /**************************************************************************
     Grab the current sensor reading to see actuator's position
   **************************************************************************/
   currentSensorReading = getCurrentSensorReading(); 
+ 
+
+  /*************************************************************************
+  Display the current Sensor Reading for calibration purposes
+  /************************************************************************/
+  if (CALIBRATION_OUTPUT) {
   
+    Serial.print(" Sensor Reading:");Serial.println(currentSensorReading); //Serial.println(analogRead(READING_PIN));
+  
+  }
+
+
   /**************************************************************************
     And, finally, check to see if the actuator has reached its limit (and 
     therefore no longer  moving) for more than the allotted MAX_IDLE_TIME 
