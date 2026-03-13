@@ -1,0 +1,24 @@
+Plotted to 'C:\Users\ripperuser\Documents\sonex_flap_control\kicad_models\ArduinoBoard\GerberFiles\ArduinoBoard-F_Cu.gbr'.
+Plotted to 'C:\Users\ripperuser\Documents\sonex_flap_control\kicad_models\ArduinoBoard\GerberFiles\ArduinoBoard-B_Cu.gbr'.
+Plotted to 'C:\Users\ripperuser\Documents\sonex_flap_control\kicad_models\ArduinoBoard\GerberFiles\ArduinoBoard-F_Paste.gbr'.
+Plotted to 'C:\Users\ripperuser\Documents\sonex_flap_control\kicad_models\ArduinoBoard\GerberFiles\ArduinoBoard-B_Paste.gbr'.
+Plotted to 'C:\Users\ripperuser\Documents\sonex_flap_control\kicad_models\ArduinoBoard\GerberFiles\ArduinoBoard-F_Silkscreen.gbr'.
+Plotted to 'C:\Users\ripperuser\Documents\sonex_flap_control\kicad_models\ArduinoBoard\GerberFiles\ArduinoBoard-B_Silkscreen.gbr'.
+Plotted to 'C:\Users\ripperuser\Documents\sonex_flap_control\kicad_models\ArduinoBoard\GerberFiles\ArduinoBoard-F_Mask.gbr'.
+Plotted to 'C:\Users\ripperuser\Documents\sonex_flap_control\kicad_models\ArduinoBoard\GerberFiles\ArduinoBoard-B_Mask.gbr'.
+Plotted to 'C:\Users\ripperuser\Documents\sonex_flap_control\kicad_models\ArduinoBoard\GerberFiles\ArduinoBoard-Edge_Cuts.gbr'.
+Created Gerber job file 'C:\Users\ripperuser\Documents\sonex_flap_control\kicad_models\ArduinoBoard\GerberFiles\ArduinoBoard-job.gbrjob'.
+Info: Done.
+Plotted to 'C:\Users\ripperuser\Documents\sonex_flap_control\kicad_models\ArduinoBoard\GerberFiles\ArduinoBoard-F_Cu.gbr'.
+Plotted to 'C:\Users\ripperuser\Documents\sonex_flap_control\kicad_models\ArduinoBoard\GerberFiles\ArduinoBoard-B_Cu.gbr'.
+Plotted to 'C:\Users\ripperuser\Documents\sonex_flap_control\kicad_models\ArduinoBoard\GerberFiles\ArduinoBoard-F_Paste.gbr'.
+Plotted to 'C:\Users\ripperuser\Documents\sonex_flap_control\kicad_models\ArduinoBoard\GerberFiles\ArduinoBoard-B_Paste.gbr'.
+Plotted to 'C:\Users\ripperuser\Documents\sonex_flap_control\kicad_models\ArduinoBoard\GerberFiles\ArduinoBoard-F_Silkscreen.gbr'.
+Plotted to 'C:\Users\ripperuser\Documents\sonex_flap_control\kicad_models\ArduinoBoard\GerberFiles\ArduinoBoard-B_Silkscreen.gbr'.
+Plotted to 'C:\Users\ripperuser\Documents\sonex_flap_control\kicad_models\ArduinoBoard\GerberFiles\ArduinoBoard-F_Mask.gbr'.
+Plotted to 'C:\Users\ripperuser\Documents\sonex_flap_control\kicad_models\ArduinoBoard\GerberFiles\ArduinoBoard-B_Mask.gbr'.
+Plotted to 'C:\Users\ripperuser\Documents\sonex_flap_control\kicad_models\ArduinoBoard\GerberFiles\ArduinoBoard-Edge_Cuts.gbr'.
+Created Gerber job file 'C:\Users\ripperuser\Documents\sonex_flap_control\kicad_models\ArduinoBoard\GerberFiles\ArduinoBoard-job.gbrjob'.
+Info: Done.
+Info: Done.
+Info: Done.

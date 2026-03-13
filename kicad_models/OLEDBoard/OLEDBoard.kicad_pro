@@ -468,7 +468,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "ArduinoBoard.kicad_pro",
+    "filename": "OLEDBoard.kicad_pro",
     "version": 3
   },
   "net_settings": {
